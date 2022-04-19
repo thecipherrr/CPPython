@@ -8,6 +8,7 @@
 - [ ] Reserved keywords and identifiers
 - [ ] Error class
 - [ ] Handling Python functions
+- [ ] Implement indentation token lexing
 
 ## 2. Parser:
 - [ ] Implementing regular grammar
