@@ -1,9 +1,17 @@
 import string
 
 # Token Classes
-OP = ['+', '-', '*', '/', '**']
-DEL = ['(', ')', '[', ']']
-RES = ['print', 'for', 'while', 'if', 'else']
+OP = ['+', '-', '*', '/', '**', '<', '>']
+DEL = ['(', ')', '[', ']', ':', ';']
+RES = ['print', 'for', 'while', 'if', 'else', 'False', 'True', 'not', 'or', 'and']
+
+class Error:
+    def __init__(self, e_type, e_message):
+        self.e_type = e_type 
+        self.e_message = e_message 
+
+    def __repr__(self):
+        return f"Error({self.e_type, self.e_message})"
 
 class Token:
     def __init__(self, t_type, t_value, start):
@@ -36,6 +44,7 @@ class Lexer:
             if self.current in OP:
                 tokens.append(Token("OPERATOR", self.current, self.pos)) # operator token
             elif self.current in DEL:
+                # TODO implement indentation later
                 tokens.append(Token("DELIMITER", self.current, self.pos)) # delimiter token
             elif self.current in string.ascii_letters:
                 identifier = ""
@@ -67,11 +76,13 @@ class Lexer:
                     num += self.current 
                     self.next()
                 tokens.append(Token("NUMERIC", float(num), self.pos))
-
+                continue  
+            elif self.current == "\n":
+                tokens.append(Token("NEWLINE", self.current, self.pos))
             self.next()
         return tokens
 
-program = "0.5"
+program = "for i in range(0, 10);"
 lexer = Lexer("test.py", program)
 tokens = lexer.generate_tokens()
 
