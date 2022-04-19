@@ -5,19 +5,19 @@
 - [x] Basic operators and delimiters
 - [x] String literals
 - [x] Numeric tokens 
-- [  ] Reserved keywords and identifiers
-- [  ] Error class
-- [  ] Handling Python functions
+- [ ] Reserved keywords and identifiers
+- [ ] Error class
+- [ ] Handling Python functions
 
 2. Parser:
-- [  ] Implementing regular grammar
-- [  ] Generating basic AST using recursive descent 
+- [ ] Implementing regular grammar
+- [ ] Generating basic AST using recursive descent 
 
 3. Translator (Generate C++ code)
-- [  ] Translating a simple print statement
-- [  ] Translating simple arithmetic operations
-- [  ] Translating conditionals, for loops, and while loops
-- [  ] Translating a simple Python function
+- [ ] Translating a simple print statement
+- [ ] Translating simple arithmetic operations
+- [ ] Translating conditionals, for loops, and while loops
+- [ ] Translating a simple Python function
 
 ## Source:
 1. How a Programming Language Works:
