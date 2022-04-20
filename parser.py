@@ -1,6 +1,6 @@
 from lexer import Lexer
 
-class BinaryOperation():
+class BinaryOperation:
     def __init__(self, t_left, t_op, t_right):
         self.t_left = t_left 
         self.t_op = t_op 
@@ -9,6 +9,21 @@ class BinaryOperation():
     def __repr__(self):
         return f"BOP|{self.t_left}, {self.t_op}, {self.t_right}"
 
+class UnaryOperation:
+    def __init__(self, t_op, t_right):
+        self.t_op = t_op 
+        self.t_right = t_right
+    
+    def __repr__(self):
+        return f"U|{self.t_op}, {self.t_right}"
+
+class VariableCreation:
+    def __init__(self, t_id, t_value):
+        self.t_id = t_id 
+        self.t_value = t_value
+
+    def __repr__(self):
+        return f"V|{self.t_id}, {self.t_value}"
 
 class Parser():
     def __init__(self, filename, tokens):
