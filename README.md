@@ -5,10 +5,9 @@
 - [x] Basic operators and delimiters
 - [x] String literals
 - [x] Numeric tokens 
-- [ ] Reserved keywords and identifiers
+- [x] Reserved keywords and identifiers
 - [ ] Error class
-- [ ] Handling Python functions
-- [ ] Implement indentation token lexing
+- [x] Implement indentation token lexing
 
 ## 2. Parser:
 - [ ] Implementing regular grammar
