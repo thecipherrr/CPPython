@@ -20,7 +20,7 @@ class Token:
         self.t_value = t_value
     
     def __repr__(self):
-        return f"Token({self.t_type}, {self.t_value})"
+        return f"Token({self.t_type}, {self.t_value})" if {self.t_value} != None else f"Token({self.t_type})"
 
 class Lexer:
     def __init__(self, filename, data:str):
@@ -28,7 +28,9 @@ class Lexer:
         self.data = data
         self.lineno = 1
         self.pos = -1
-        self.current = None
+        self.current = None  
+        self.indent_stack = [] # initialize stack for INDENT and DEDENT tokens 
+        self.curr_indent_level = 0 # initialize current indentation level
         self.next()
 
     def next(self):
@@ -39,13 +41,14 @@ class Lexer:
 
     def generate_tokens(self):
         tokens = []
+        self.indent_stack.append(0)
 
         while self.current != None: 
             if self.current in OP:
                 tokens.append(Token("OPERATOR", self.current, self.pos)) # operator token
             elif self.current in DEL:
-                # TODO implement indentation later
-                tokens.append(Token("DELIMITER", self.current, self.pos)) # delimiter token
+                # indentation token implementation 
+               tokens.append(Token("DELIMITER", self.current, self.pos)) # delimiter token 
             elif self.current in string.ascii_letters:
                 identifier = ""
                 while str(self.current) in string.ascii_letters:
@@ -78,11 +81,30 @@ class Lexer:
                 tokens.append(Token("NUMERIC", float(num), self.pos))
                 continue  
             elif self.current == "\n":
-                tokens.append(Token("NEWLINE", self.current, self.pos))
-            self.next()
+                self.lineno += 1
+                self.curr_indent_level = 0
+                tokens.append(Token("NEWLINE", self.current, self.pos))  
+                self.next() 
+                if self.current == " ":
+                    while self.current == " ":
+                        self.curr_indent_level += 1 
+                        self.next()
+                if self.curr_indent_level > self.indent_stack[-1]:
+                    self.indent_stack.append(self.curr_indent_level)
+                    tokens.append(Token("INDENT", None, self.pos))
+                elif self.curr_indent_level < self.indent_stack[-1]:
+                    for i in range(0, len(self.indent_stack)):
+                        if self.indent_stack[-i] > self.curr_indent_level:
+                            self.indent_stack.pop(i)
+                            tokens.append(Token("DEDENT", None, self.pos)) 
+                continue
+            self.next() 
         return tokens
 
-program = "for i in range(0, 10);"
+
+with open("test.py") as data:
+    program = data.read()
+
 lexer = Lexer("test.py", program)
 tokens = lexer.generate_tokens()
 
