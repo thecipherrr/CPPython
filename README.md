@@ -19,6 +19,9 @@
 - [ ] Translating conditionals, for loops, and while loops
 - [ ] Translating a simple Python function
 
+## THINGS TO FIX
+- [ ] Python function AST generation
+
 ## Source:
 ### 1. How a Programming Language Works:
 http://www2.hawaii.edu/~takebaya/ics111/process_of_programming/process_of_programming.html 
