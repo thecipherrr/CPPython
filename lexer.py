@@ -3,7 +3,9 @@ import string
 # Token Classes
 OP = ['+', '-', '*', '/', '**', '<', '>']
 DEL = ['(', ')', '[', ']', ':', ';']
-RES = ['print', 'for', 'while', 'if', 'else', 'False', 'True', 'not', 'or', 'and']
+RES = ['print', 'for', 'while', 'if', 'else', 'False', 'True', 'not', 'or', 'and'
+       'except', 'break', 'def', 'lambda']
+
 
 class Error:
     def __init__(self, e_type, e_message):
@@ -97,7 +99,9 @@ class Lexer:
                         if self.indent_stack[-i] > self.curr_indent_level:
                             self.indent_stack.pop(i)
                             tokens.append(Token("DEDENT", None, self.pos)) 
-                continue
+                continue 
+            elif self.current == "=":
+                tokens.append(Token("ASSIGN", self.current, self.pos))
             self.next() 
         return tokens
 
