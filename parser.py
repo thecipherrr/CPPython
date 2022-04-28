@@ -33,12 +33,12 @@ class VariableCreation:
         return f"V|{self.t_id}, {self.t_value}"
 
 class PythonFunction:
-    def __init__(self, t_def, t_id):
-        self.t_def = t_def 
-        self.t_id = t_id
-        
+    def __init__(self, t_func, t_args):
+        self.t_func = t_func 
+        self.t_args = t_args 
+
     def __repr__(self):
-        return f"F|{self.t_def}, {self.t_id}"
+        return f"F|{self.t_func}, {self.t_args}"
 
 class Newline:
     def __init__(self, token):
@@ -90,13 +90,24 @@ class Parser():
                 temp_token = self.current 
                 self.next()
                 num = self.level_1()
-                return UnaryOperation(temp_token, num)
+                return UnaryOperation(temp_token, num) 
 
 
     def level_2(self):
         return self.binary_operation(self.level_1, ("*", "/"))
 
     def level_3(self):
+        # testing for basic functions like print 
+        if self.current.t_type == "KEYWORD" and self.current.t_value == "print":
+            name = self.current 
+            self.next() 
+            if self.current.t_value != "(":
+                # TODO implement error classes 
+                return "error"
+            self.next() 
+            data = self.level_3()
+            return PythonFunction(name, data)
+
         # for variable creation 
         if self.current.t_type == "IDENTIFIER":
             name = self.current 
@@ -108,6 +119,7 @@ class Parser():
         
         # for addition and subtraction
         return self.binary_operation(self.level_2, ("+", "-"))
+
 
     def parse(self):
         result = self.level_3()
