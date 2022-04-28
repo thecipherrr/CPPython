@@ -1,4 +1,1 @@
-foo
-if bar:
-    bay 
-baz
+x = 10 - 5
