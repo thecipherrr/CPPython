@@ -1,4 +1,4 @@
-# Transcompiler from Python to C++ (kinda like Cython)
+# Transcompiler from Python to C++ (kinda like Cython but not)
 
 ## PROGRESS SO FAR
 ## 1. Lexer:
@@ -6,8 +6,10 @@
 - [x] String literals
 - [x] Numeric tokens 
 - [x] Reserved keywords and identifiers
-- [ ] Error class
+- [x] Error class
 - [x] Implement indentation token lexing
+- [ ] Implemented more reserved keywords 
+
 
 ## 2. Parser:
 - [ ] Implementing regular grammar

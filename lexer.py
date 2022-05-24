@@ -4,8 +4,7 @@ import string
 OP = ['+', '-', '*', '/', '**', '<', '>']
 DEL = ['(', ')', '[', ']', ':', ';']
 RES = ['print', 'for', 'while', 'if', 'else', 'False', 'True', 'not', 'or', 'and'
-       'except', 'break', 'def', 'lambda']
-
+       'except', 'break', 'def', 'lambda', 'class']
 
 class Error:
     def __init__(self, e_type, e_message):
@@ -76,7 +75,7 @@ class Lexer:
                     if str(self.current) == ".":
                         if decimal_count == 2:
                             # TODO implement error class later 
-                            return "error"
+                            return Error("Float error", "invalid float")
                         decimal_count += 1
                     num += self.current 
                     self.next()
