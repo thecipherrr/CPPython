@@ -54,7 +54,7 @@ class Newline:
     def __repr__(self):
         return f"(LINE|{self.token})"
 
-class Parser():
+class Parser:
     def __init__(self, filename, tokens, text):
         self.filename = filename
         self.tokens = tokens 
