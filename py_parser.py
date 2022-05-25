@@ -47,6 +47,14 @@ class PythonFunction:
     def __repr__(self):
         return f"(F|{self.t_identifier}, {self.t_args})"
 
+class FunctionDeclaration:
+    def __init__(self, t_func_name, t_args):
+        self.t_func_name = t_func_name 
+        self.t_args = t_args
+
+    def __repr__(self):
+        return f"(FDEF|{self.t_identifier}, {self.t_args})"
+
 class Newline:
     def __init__(self, token):
        self.token = token 
@@ -133,12 +141,12 @@ class Parser:
         return (result, None) if self.error == None else (None, self.error)
 
 
-with open("test.py") as text:
-    program = text.read()
+#with open("test.py") as text:
+    #program = text.read()
 
-lexer = lex.Lexer("test.py", program)
-tokens = lexer.generate_tokens() 
+#lexer = lex.Lexer("test.py", program)
+#tokens = lexer.generate_tokens() 
 
-parser = Parser("test.py", tokens, program)
-ast = parser.parse()
-print(ast)
+#parser = Parser("test.py", tokens, program)
+#ast = parser.parse()
+#print(ast)

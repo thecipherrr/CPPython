@@ -48,7 +48,6 @@ class Lexer:
             if self.current in OP:
                 tokens.append(Token("OPERATOR", self.current, self.pos)) # operator token
             elif self.current in DEL:
-                # indentation token implementation 
                tokens.append(Token("DELIMITER", self.current, self.pos)) # delimiter token 
             elif self.current in string.ascii_letters:
                 identifier = ""
@@ -86,7 +85,7 @@ class Lexer:
                 self.curr_indent_level = 0
                 tokens.append(Token("NEWLINE", self.current, self.pos))  
                 self.next() 
-                if self.current == " ":
+                if self.current == " ": # indentation token
                     while self.current == " ":
                         self.curr_indent_level += 1 
                         self.next()
@@ -105,10 +104,10 @@ class Lexer:
         return tokens
 
 
-with open("test.py") as data:
-    program = data.read()
+#with open("test.py") as data:
+    #program = data.read()
 
-lexer = Lexer("test.py", program)
-tokens = lexer.generate_tokens()
+#lexer = Lexer("test.py", program)
+#tokens = lexer.generate_tokens()
 
-print(tokens)
+#print(tokens)
