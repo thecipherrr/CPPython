@@ -78,7 +78,10 @@ class Lexer:
                         decimal_count += 1
                     num += self.current 
                     self.next()
-                tokens.append(Token("NUMERIC", float(num), self.pos))
+                if "." not in num:
+                    tokens.append(Token("INT", int(num), self.pos))
+                else:
+                    tokens.append(Token("FLOAT", float(num), self.pos))
                 continue  
             elif self.current == "\n":
                 self.lineno += 1

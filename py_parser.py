@@ -97,7 +97,7 @@ class Parser:
 
     def level_1(self):
         temp_token = self.current 
-        if temp_token.t_type == "NUMERIC":
+        if temp_token.t_type == "INT" or temp_token.t_type == "FLOAT":
             self.next()
             return Number(temp_token)
         elif temp_token.t_type == "OPERATOR" and (temp_token.t_value == "+" or temp_token.t_value == "-"):
@@ -141,12 +141,12 @@ class Parser:
         return (result, None) if self.error == None else (None, self.error)
 
 
-#with open("test.py") as text:
-    #program = text.read()
+with open("test.py") as text:
+    program = text.read()
 
-#lexer = lex.Lexer("test.py", program)
-#tokens = lexer.generate_tokens() 
+lexer = lex.Lexer("test.py", program)
+tokens = lexer.generate_tokens() 
 
-#parser = Parser("test.py", tokens, program)
-#ast = parser.parse()
-#print(ast)
+parser = Parser("test.py", tokens, program)
+ast = parser.parse()
+print(ast)

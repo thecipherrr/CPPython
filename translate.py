@@ -14,7 +14,11 @@ class Translate:
         out.write("\n\n")
 
     def write_print(self, out, print_args):
+        # for print statements
         out.write("cout << " + print_args + "<< endl;")
+
+    def write_var_assignment(self, out, var_type, var_name, var_value):
+        out.write(var_type + " " + var_name + " = " + var_value + ";")
 
     def compile(self):
         filename = os.path.splitext(self.file_input)[0]
@@ -39,21 +43,25 @@ class Translate:
                 if isinstance(syntax, yacc.PythonFunction):
                    if syntax.t_identifier.t_value == "print":
                         out.write("\t")
-                        self.write_print(out, syntax.t_args.token.t_value) 
+                        self.write_print(out, syntax.t_args.token.t_value)
                         
                 elif isinstance(syntax, yacc.VariableCreation):
-                    if syntax.t_identifier.t_value == "":
-                        # TODO: implement variable creation later
-                        print("foo")
+                    out.write("\t")
+                    if syntax.t_value.token.t_type == "INT":
+                        self.write_var_assignment(out, "int", syntax.t_id.t_value, str(syntax.t_value.token.t_value))
+                    elif syntax.t_value.token.t_type == "FLOAT":
+                        self.write_var_assignment(out, "float", syntax.t_id.t_value, str(syntax.t_value.token.t_value))
                
                 elif syntax==None:
                     out.write("\n")
-                    print("Compilation Successful!")
-                    return 0;
+                    continue
+                else:
+                    print("Compilation Success!") 
+                    return 0; 
 
-                out.write("\n")
-                out.write("\treturn 0;")
-                out.write("\n}")
+            out.write("\n")
+            out.write("\treturn 0;")
+            out.write("\n}")
         
         out.close()
 
@@ -69,6 +77,5 @@ def main():
 
     trans = Translate(ast, "test.py")
     out = trans.compile()
-
 
 main() 
