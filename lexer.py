@@ -29,7 +29,8 @@ class Lexer:
         self.data = data
         self.lineno = 1
         self.pos = -1
-        self.current = None  
+        self.current = None
+        ## what is indent and dedent for lol
         self.indent_stack = [] # initialize stack for INDENT and DEDENT tokens 
         self.curr_indent_level = 0 # initialize current indentation level
         self.next()
@@ -58,7 +59,8 @@ class Lexer:
                     tokens.append(Token("KEYWORD", identifier, self.pos)) # keyword token
                 else:
                     tokens.append(Token("IDENTIFIER", identifier, self.pos)) # identifier token
-                continue
+                ## why continue is here, but not in other conditions (OP and DEL)?
+                # continue
             elif self.current == '"':
                 identifier = '"'
                 self.next()
@@ -69,9 +71,11 @@ class Lexer:
                 tokens.append(Token("STRING", identifier, self.pos)) # string literal token 
             elif str(self.current).isnumeric():
                 num = ""
-                decimal_count = 1 
+                ## what is this for
+                decimal_count = 1
                 while str(self.current) in ".0123456789":
                     if str(self.current) == ".":
+                        ## why error if decimal_count is 2
                         if decimal_count == 2:
                             # TODO implement error class later 
                             return Error("Float error", "invalid float")
@@ -82,12 +86,15 @@ class Lexer:
                     tokens.append(Token("INT", int(num), self.pos))
                 else:
                     tokens.append(Token("FLOAT", float(num), self.pos))
-                continue  
+                ## refer above case
+                # continue
             elif self.current == "\n":
                 self.lineno += 1
                 self.curr_indent_level = 0
                 tokens.append(Token("NEWLINE", self.current, self.pos))  
-                self.next() 
+                self.next()
+                ## shouldn't this be four spaces instead for the indent? but then,
+                ## it is hard to check for four spaces, hmm, what is the solution
                 if self.current == " ": # indentation token
                     while self.current == " ":
                         self.curr_indent_level += 1 
@@ -99,8 +106,9 @@ class Lexer:
                     for i in range(0, len(self.indent_stack)):
                         if self.indent_stack[-i] > self.curr_indent_level:
                             self.indent_stack.pop(i)
-                            tokens.append(Token("DEDENT", None, self.pos)) 
-                continue 
+                            tokens.append(Token("DEDENT", None, self.pos))
+                ## refer above cases
+                # continue
             elif self.current == "=":
                 tokens.append(Token("ASSIGN", self.current, self.pos))
             self.next() 
