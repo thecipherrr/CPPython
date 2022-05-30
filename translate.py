@@ -15,7 +15,6 @@ class Translate:
 
     def write_print(self, out, print_args):
         out.write("cout << " + print_args + "<< endl;")
-         
 
     def compile(self):
         filename = os.path.splitext(self.file_input)[0]
@@ -23,10 +22,17 @@ class Translate:
         out = open(filename_out, "w+")
        
         self.write_header(out)
+        out.write("int main(void)")        
+        out.write("\n\n")
+        out.write("{") 
+        out.write("\n")
+
         for syntax in self.ast_input:
             # if function declaration, write outside of int main(void)
             if isinstance(syntax, yacc.FunctionDeclaration):
                 # TODO: implement translation for function declaratin later
+                # write outside of int main(void)
+                out.write("foo in the line outside int main")
                 out.write("foo")
 
             else:
@@ -41,11 +47,12 @@ class Translate:
                         print("foo")
                
                 elif syntax==None:
+                    out.write("\n")
                     print("Compilation Successful!")
                     return 0;
 
                 out.write("\n")
-                out.write("\t return 0;")
+                out.write("\treturn 0;")
                 out.write("\n}")
         
         out.close()
