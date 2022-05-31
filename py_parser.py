@@ -39,6 +39,8 @@ class VariableCreation:
     def __repr__(self):
         return f"(V|{self.t_id}, {self.t_value})"
 
+## hmm, what is the diff between python function and function declaration?
+## seems similar to me? could it be redundant code?
 class PythonFunction:
     def __init__(self, t_identifier, t_args):
         self.t_identifier = t_identifier 
@@ -64,10 +66,12 @@ class Newline:
 
 class Parser:
     def __init__(self, filename, tokens, text):
+        ## why need filename if it won't be used
         self.filename = filename
-        self.tokens = tokens 
-        self.text = text 
-        self.pos = -1 
+        self.tokens = tokens
+        ## self.text is probably redundant too, but maybe he has other plans for this? hmm
+        self.text = text
+        self.pos = -1
         self.current = None 
         self.error = None 
         self.next()
