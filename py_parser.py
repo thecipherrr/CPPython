@@ -107,6 +107,9 @@ class Parser:
         return self.binary_operation(self.level_1, ("*", "/"))
 
     def level_3(self):  
+        if self.current.t_type == "NEWLINE":
+            data = self.level_3()
+            return data
 
         # testing for basic functions like print 
         if self.current.t_type == "KEYWORD":
@@ -131,7 +134,9 @@ class Parser:
 
 
     def parse(self):
-        result = self.level_3()
+        while self.current != None:
+            result = self.level_3()
+            self.next()
         return (result, None) if self.error == None else (None, self.error)
 
 with open("test.py") as data:
