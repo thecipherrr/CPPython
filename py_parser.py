@@ -55,13 +55,6 @@ class FunctionDeclaration:
     def __repr__(self):
         return f"(FDEF|{self.t_identifier}, {self.t_args})"
 
-class Newline:
-    def __init__(self, token):
-       self.token = token 
-    
-    def __repr__(self):
-        return f"(LINE|{self.token})"
-
 class Parser:
     def __init__(self, filename, tokens, text):
         self.filename = filename
@@ -70,6 +63,7 @@ class Parser:
         self.pos = -1 
         self.current = None 
         self.error = None 
+        self.ast_out = []
         self.next()
 
     def next(self):
@@ -140,13 +134,13 @@ class Parser:
         result = self.level_3()
         return (result, None) if self.error == None else (None, self.error)
 
-
-with open("test.py") as text:
-    program = text.read()
+with open("test.py") as data:
+    program = data.read()
 
 lexer = lex.Lexer("test.py", program)
-tokens = lexer.generate_tokens() 
+tokens = lexer.generate_tokens()
 
 parser = Parser("test.py", tokens, program)
 ast = parser.parse()
+
 print(ast)

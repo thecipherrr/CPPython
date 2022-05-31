@@ -15,7 +15,7 @@ class Translate:
 
     def write_print(self, out, print_args):
         # for print statements
-        out.write("cout << " + print_args + "<< endl;")
+        out.write("cout << " + print_args + " << endl;")
 
     def write_var_assignment(self, out, var_type, var_name, var_value):
         out.write(var_type + " " + var_name + " = " + var_value + ";")

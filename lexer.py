@@ -7,9 +7,10 @@ RES = ['print', 'for', 'while', 'if', 'else', 'False', 'True', 'not', 'or', 'and
        'except', 'break', 'def', 'lambda', 'class']
 
 class Error:
-    def __init__(self, e_type, e_message):
+    def __init__(self, e_type, e_message, e_position):
         self.e_type = e_type 
         self.e_message = e_message 
+        self.e_position = e_position
 
     def __repr__(self):
         return f"Error({self.e_type, self.e_message})"
@@ -107,10 +108,10 @@ class Lexer:
         return tokens
 
 
-#with open("test.py") as data:
-    #program = data.read()
+with open("test.py") as data:
+    program = data.read()
 
-#lexer = Lexer("test.py", program)
-#tokens = lexer.generate_tokens()
+lexer = Lexer("test.py", program)
+tokens = lexer.generate_tokens()
 
-#print(tokens)
+print(tokens)
