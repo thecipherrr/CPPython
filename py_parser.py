@@ -41,6 +41,9 @@ class VariableCreation:
 
 ## hmm, what is the diff between python function and function declaration?
 ## seems similar to me? could it be redundant code?
+## nvm, python function is for default python functions
+## function declarations is for functions defined by the user
+## clear
 class PythonFunction:
     def __init__(self, t_identifier, t_args):
         self.t_identifier = t_identifier 
@@ -69,7 +72,7 @@ class Parser:
         ## why need filename if it won't be used
         self.filename = filename
         self.tokens = tokens
-        ## self.text is probably redundant too, but maybe he has other plans for this? hmm
+        ## self.text is probably redundant too
         self.text = text
         self.pos = -1
         self.current = None 
@@ -84,6 +87,9 @@ class Parser:
 
     def binary_operation(self, func, op_token): 
         left = func()
+        ## hmm, why is the while using ternary operator, hmm
+        ## what does the ternary operator means
+        ## clear
         while (
             self.current.t_value if self.current != None else None
         ) in op_token:
@@ -94,6 +100,7 @@ class Parser:
                 # TODO implement error class later here
                 return "error" 
             left = BinaryOperation(left, current_op_token, right)
+        ## still don't understand this part, why should it return error if next char is left parenthesis?
         if self.current.t_type == "LPAREN":
             # TODO implement error class later too
             return "error"
@@ -104,10 +111,15 @@ class Parser:
         if temp_token.t_type == "INT" or temp_token.t_type == "FLOAT":
             self.next()
             return Number(temp_token)
+        ## i don't understand the recursive part
+        ## clear
         elif temp_token.t_type == "OPERATOR" and (temp_token.t_value == "+" or temp_token.t_value == "-"):
             temp_token = self.current 
             self.next()
             num = self.level_1()
+            ## isn't + and - supposed to be binary operation?
+            ## clear
+            ## prolly will bug if +/- String?
             return UnaryOperation(temp_token, num)  
         elif temp_token.t_type == "STRING":
             return String(self.current)
@@ -121,13 +133,18 @@ class Parser:
         # testing for basic functions like print 
         if self.current.t_type == "KEYWORD":
             name = self.current 
-            self.next() 
+            self.next()
+            ## not all delimiter, only parenthesis
             if self.current.t_type == "DELIMITER":
                 self.next()
+                ## still don't understand the recursive part
+                ## clear
                 data = self.level_3()
                 return PythonFunction(name, data)
 
-        # for variable creation 
+        # for variable creation
+        ## prolly will bug if variable creation involves string
+        ## need to add string feature
         if self.current.t_type == "IDENTIFIER":
             name = self.current 
             self.next()
@@ -145,12 +162,12 @@ class Parser:
         return (result, None) if self.error == None else (None, self.error)
 
 
-with open("test.py") as text:
+with open("test_parser.py") as text:
     program = text.read()
 
-lexer = lex.Lexer("test.py", program)
+lexer = lex.Lexer("test_parser.py", program)
 tokens = lexer.generate_tokens() 
 
-parser = Parser("test.py", tokens, program)
+parser = Parser("test_parser.py", tokens, program)
 ast = parser.parse()
 print(ast)
