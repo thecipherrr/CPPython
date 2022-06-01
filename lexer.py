@@ -62,6 +62,9 @@ class Lexer:
             if self.current in OP:
                 tokens.append(Token("OPERATOR", self.current, self.pos))
             # ---
+            elif self.current == "=":
+                tokens.append(Token("ASSIGN", self.current, self.pos))
+            # ---
             # check for delimiter token
             elif self.current in DEL:
                tokens.append(Token("DELIMITER", self.current, self.pos))
@@ -119,9 +122,11 @@ class Lexer:
                 tokens.append(Token("NEWLINE", self.current, self.pos))  
                 self.next()
                 if self.current == " ": # indentation token
+                    # loop till the end of the whitespaces and increment the indent level
                     while self.current == " ":
                         self.curr_indent_level += 1 
                         self.next()
+                # if current indent level is more than the last indent
                 if self.curr_indent_level > self.indent_stack[-1]:
                     self.indent_stack.append(self.curr_indent_level)
                     tokens.append(Token("INDENT", None, self.pos))
@@ -131,10 +136,7 @@ class Lexer:
                             self.indent_stack.pop(i)
                             tokens.append(Token("DEDENT", None, self.pos))
                 continue
-            # ---
-            elif self.current == "=":
-                tokens.append(Token("ASSIGN", self.current, self.pos))
-            self.next() 
+            self.next()
         return tokens
 
 
