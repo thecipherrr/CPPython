@@ -55,7 +55,6 @@ class FunctionDeclaration:
     def __repr__(self):
         return f"(FDEF|{self.t_identifier}, {self.t_args})"
 
-<<<<<<< HEAD
 class Parser:
     def __init__(self, filename, tokens, text):
         self.filename = filename
@@ -64,8 +63,7 @@ class Parser:
         self.pos = -1 
         self.current = None 
         self.error = None 
-        self.ast_out = []
-=======
+
 class Newline:
     def __init__(self, token):
        self.token = token
@@ -81,7 +79,6 @@ class Parser:
         self.pos = -1
         self.current = None
         self.error = None
->>>>>>> 056c930fb1a24eb7d1445c80e80ded3c04a80d22
         self.next()
 
     def next(self):
@@ -124,14 +121,7 @@ class Parser:
     def level_2(self):
         return self.binary_operation(self.level_1, ("*", "/"))
 
-<<<<<<< HEAD
-    def level_3(self):  
-        if self.current.t_type == "NEWLINE":
-            data = self.level_3()
-            return data
-=======
     def level_3(self):
->>>>>>> 056c930fb1a24eb7d1445c80e80ded3c04a80d22
 
         # testing for basic functions like print
         if self.current.t_type == "KEYWORD":
