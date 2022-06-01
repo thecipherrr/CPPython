@@ -156,9 +156,7 @@ class Parser:
 
 
     def parse(self):
-        while self.current != None:
-            result = self.level_3()
-            self.next()
+        result = self.level_3()
         return (result, None) if self.error == None else (None, self.error)
 
 with open("test.py") as data:
