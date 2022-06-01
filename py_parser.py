@@ -1,5 +1,6 @@
 import lexer as lex
 
+
 class String:
     def __init__(self, token):
         self.token = token
@@ -7,12 +8,14 @@ class String:
     def __repr__(self):
         return f"(STR|{self.token})"
 
+
 class Number:
     def __init__(self, token):
         self.token = token
     
     def __repr__(self):
         return f"(N|{self.token})"
+
 
 class BinaryOperation:
     def __init__(self, t_left, t_op, t_right):
@@ -23,6 +26,7 @@ class BinaryOperation:
     def __repr__(self):
         return f"(BOP|{self.t_left}, {self.t_op}, {self.t_right})"
 
+
 class UnaryOperation:
     def __init__(self, t_op, t_right):
         self.t_op = t_op 
@@ -30,6 +34,7 @@ class UnaryOperation:
     
     def __repr__(self):
         return f"(U|{self.t_op}, {self.t_right})"
+
 
 class VariableCreation:
     def __init__(self, t_id, t_value):
@@ -166,7 +171,8 @@ with open("test_parser.py") as text:
     program = text.read()
 
 lexer = lex.Lexer("test_parser.py", program)
-tokens = lexer.generate_tokens() 
+tokens = lexer.generate_tokens()
+print(tokens)
 
 parser = Parser("test_parser.py", tokens, program)
 ast = parser.parse()
