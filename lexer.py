@@ -164,10 +164,10 @@ class Lexer:
         return tokens
 
 
-with open("test_lexer.py") as data:
-    program = data.read()
+# with open("test_lexer.py") as data:
+#     program = data.read()
 
-lexer = Lexer("test_lexer.py", program)
-tokens = lexer.generate_tokens()
+# lexer = Lexer("test_lexer.py", program)
+# tokens = lexer.generate_tokens()
 
-print(tokens)
+# print(tokens)
