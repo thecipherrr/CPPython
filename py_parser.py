@@ -1,6 +1,5 @@
 import lexer as lex
 
-
 class String:
     def __init__(self, token):
         self.token = token
@@ -8,58 +7,49 @@ class String:
     def __repr__(self):
         return f"(STR|{self.token})"
 
-
 class Number:
     def __init__(self, token):
         self.token = token
-    
+
     def __repr__(self):
         return f"(N|{self.token})"
 
-
 class BinaryOperation:
     def __init__(self, t_left, t_op, t_right):
-        self.t_left = t_left 
-        self.t_op = t_op 
-        self.t_right = t_right 
+        self.t_left = t_left
+        self.t_op = t_op
+        self.t_right = t_right
 
     def __repr__(self):
         return f"(BOP|{self.t_left}, {self.t_op}, {self.t_right})"
 
-
 class UnaryOperation:
     def __init__(self, t_op, t_right):
-        self.t_op = t_op 
+        self.t_op = t_op
         self.t_right = t_right
-    
+
     def __repr__(self):
         return f"(U|{self.t_op}, {self.t_right})"
 
-
 class VariableCreation:
     def __init__(self, t_id, t_value):
-        self.t_id = t_id 
+        self.t_id = t_id
         self.t_value = t_value
 
     def __repr__(self):
         return f"(V|{self.t_id}, {self.t_value})"
 
-## hmm, what is the diff between python function and function declaration?
-## seems similar to me? could it be redundant code?
-## nvm, python function is for default python functions
-## function declarations is for functions defined by the user
-## clear
 class PythonFunction:
     def __init__(self, t_identifier, t_args):
-        self.t_identifier = t_identifier 
-        self.t_args = t_args 
+        self.t_identifier = t_identifier
+        self.t_args = t_args
 
     def __repr__(self):
         return f"(F|{self.t_identifier}, {self.t_args})"
 
 class FunctionDeclaration:
     def __init__(self, t_func_name, t_args):
-        self.t_func_name = t_func_name 
+        self.t_func_name = t_func_name
         self.t_args = t_args
 
     def __repr__(self):
@@ -67,65 +57,54 @@ class FunctionDeclaration:
 
 class Newline:
     def __init__(self, token):
-       self.token = token 
-    
+       self.token = token
+
     def __repr__(self):
         return f"(LINE|{self.token})"
 
 class Parser:
     def __init__(self, filename, tokens, text):
-        ## why need filename if it won't be used
         self.filename = filename
         self.tokens = tokens
-        ## self.text is probably redundant too
         self.text = text
         self.pos = -1
-        self.current = None 
-        self.error = None 
+        self.current = None
+        self.error = None
         self.next()
 
     def next(self):
-        self.pos += 1 
+        self.pos += 1
         self.current = (
             self.tokens[self.pos] if self.pos < len(self.tokens) else None
         )
 
-    def binary_operation(self, func, op_token): 
+    def binary_operation(self, func, op_token):
         left = func()
-        ## hmm, why is the while using ternary operator, hmm
-        ## what does the ternary operator means
-        ## clear
         while (
             self.current.t_value if self.current != None else None
         ) in op_token:
             current_op_token = self.current
-            self.next() 
+            self.next()
             right = func()
             if right == None:
                 # TODO implement error class later here
-                return "error" 
+                return "error"
             left = BinaryOperation(left, current_op_token, right)
-        ## still don't understand this part, why should it return error if next char is left parenthesis?
         if self.current.t_type == "LPAREN":
             # TODO implement error class later too
             return "error"
         return left
 
     def level_1(self):
-        temp_token = self.current 
+        temp_token = self.current
         if temp_token.t_type == "INT" or temp_token.t_type == "FLOAT":
             self.next()
             return Number(temp_token)
-        ## i don't understand the recursive part
-        ## clear
         elif temp_token.t_type == "OPERATOR" and (temp_token.t_value == "+" or temp_token.t_value == "-"):
-            temp_token = self.current 
+            temp_token = self.current
             self.next()
             num = self.level_1()
-            ## isn't + and - supposed to be binary operation?
-            ## clear
-            ## prolly will bug if +/- String?
-            return UnaryOperation(temp_token, num)  
+            return UnaryOperation(temp_token, num)
         elif temp_token.t_type == "STRING":
             return String(self.current)
 
@@ -133,31 +112,26 @@ class Parser:
     def level_2(self):
         return self.binary_operation(self.level_1, ("*", "/"))
 
-    def level_3(self):  
+    def level_3(self):
 
-        # testing for basic functions like print 
+        # testing for basic functions like print
         if self.current.t_type == "KEYWORD":
-            name = self.current 
+            name = self.current
             self.next()
-            ## not all delimiter, only parenthesis
             if self.current.t_type == "DELIMITER":
                 self.next()
-                ## still don't understand the recursive part
-                ## clear
                 data = self.level_3()
                 return PythonFunction(name, data)
 
         # for variable creation
-        ## prolly will bug if variable creation involves string
-        ## need to add string feature
         if self.current.t_type == "IDENTIFIER":
-            name = self.current 
+            name = self.current
             self.next()
             if self.current.t_type == "ASSIGN":
                 self.next()
                 data = self.level_3()
                 return VariableCreation(name, data)
-        
+
         # for addition and subtraction
         return self.binary_operation(self.level_2, ("+", "-"))
 
@@ -167,13 +141,12 @@ class Parser:
         return (result, None) if self.error == None else (None, self.error)
 
 
-with open("test_parser.py") as text:
+with open("test.py") as text:
     program = text.read()
 
-lexer = lex.Lexer("test_parser.py", program)
+lexer = lex.Lexer("test.py", program)
 tokens = lexer.generate_tokens()
-print(tokens)
 
-parser = Parser("test_parser.py", tokens, program)
+parser = Parser("test.py", tokens, program)
 ast = parser.parse()
 print(ast)
