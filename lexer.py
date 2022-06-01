@@ -10,6 +10,8 @@ RES = ['print', 'for', 'while', 'if', 'else', 'False', 'True', 'not', 'or', 'and
        'except', 'break', 'def', 'lambda', 'class']
 
 
+# # ---? still can be improved
+# Error class, has line number, position, type, and message
 class Error:
     def __init__(self, e_line, e_pos, e_type, e_message):
         self.e_line = e_line
@@ -22,14 +24,16 @@ class Error:
 
 
 # ---
+# Token class, has type, value, and starting position
 class Token:
     def __init__(self, t_type, t_value, start):
-        self.start = start
-        self.t_type = t_type 
+        self.t_type = t_type
         self.t_value = t_value
-    
+        self.start = start
+
+    # return type only if there is no value
     def __repr__(self):
-        return f"Token({self.t_type}, {self.t_value})" if {self.t_value} != None else f"Token({self.t_type})"
+        return f"Token({self.t_type}, {self.t_value})" if {self.t_value} is not None else f"Token({self.t_type})"
 
 class Lexer:
     # ---
@@ -39,11 +43,15 @@ class Lexer:
         self.lineno = 1
         self.pos = -1
         self.current = None
-        self.indent_stack = [] # initialize stack for INDENT and DEDENT tokens
-        self.curr_indent_level = 0 # initialize current indentation level
+        # initialize stack for INDENT and DEDENT tokens
+        self.indent_stack = []
+        # initialize current indentation level, because initially there is no indent
+        # , but we need some value to increment later if there are any indents
+        self.curr_indent_level = 0
         self.next()
 
     # ---
+    # get next character, increment position
     def next(self):
         self.pos += 1
         self.current = (
@@ -51,8 +59,10 @@ class Lexer:
         )
 
     # ---
+    # main function to generate the tokens
     def generate_tokens(self):
         tokens = []
+        # need to have at least one element initially
         self.indent_stack.append(0)
 
         # ---
@@ -62,6 +72,7 @@ class Lexer:
             if self.current in OP:
                 tokens.append(Token("OPERATOR", self.current, self.pos))
             # ---
+            # check for assignment token
             elif self.current == "=":
                 tokens.append(Token("ASSIGN", self.current, self.pos))
             # ---
@@ -87,7 +98,7 @@ class Lexer:
             elif self.current == '"':
                 identifier = '"'
                 self.next()
-                # loop till find the next closing "
+                # loop till find the next closing ", concatenate all the characters
                 while str(self.current) != '"':
                     identifier += self.current
                     self.next()
@@ -98,6 +109,7 @@ class Lexer:
             # check for either integer or float
             elif str(self.current).isnumeric():
                 num = ""
+                # initially there are no '.'
                 decimal_count = 0
                 while str(self.current) in ".0123456789":
                     if str(self.current) == ".":
@@ -121,29 +133,41 @@ class Lexer:
                 self.curr_indent_level = 0
                 tokens.append(Token("NEWLINE", self.current, self.pos))  
                 self.next()
-                if self.current == " ": # indentation token
-                    # loop till the end of the whitespaces and increment the indent level
+                # indentation token
+                # if whitespace found after newline, take it as indentation
+                if self.current == " ":
+                    # get indentation level by counting the whitespaces in while loop
+                    # in this case, no need to check for multiplicities of 4
+                    # since we are creating our own compiler
                     while self.current == " ":
                         self.curr_indent_level += 1 
                         self.next()
-                # if current indent level is more than the last indent
+                # if the current indentation level is more than the last indentation level,
+                # then append the current indent level to the stack and
+                # append token of type indent
                 if self.curr_indent_level > self.indent_stack[-1]:
                     self.indent_stack.append(self.curr_indent_level)
                     tokens.append(Token("INDENT", None, self.pos))
+                # if the current indentation level is less than the last indentation level
+                # pop last indent and append current indent
                 elif self.curr_indent_level < self.indent_stack[-1]:
-                    for i in range(0, len(self.indent_stack)):
-                        if self.indent_stack[-i] > self.curr_indent_level:
-                            self.indent_stack.pop(i)
-                            tokens.append(Token("DEDENT", None, self.pos))
+                    self.indent_stack.pop(-1)
+                    self.indent_stack.append(self.curr_indent_level)
+                    # # this is not needed, i simplified and corrected the logic
+                    # for i in range(0, len(self.indent_stack)):
+                    #     if self.curr_indent_level < self.indent_stack[-i]:
+                    #         self.indent_stack.pop(i)
+                    tokens.append(Token("DEDENT", None, self.pos))
                 continue
+            # ---
             self.next()
         return tokens
 
 
-with open("test.py") as data:
+with open("test_lexer.py") as data:
     program = data.read()
 
-lexer = Lexer("test.py", program)
+lexer = Lexer("test_lexer.py", program)
 tokens = lexer.generate_tokens()
 
 print(tokens)
