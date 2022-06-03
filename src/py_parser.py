@@ -39,7 +39,7 @@ class VariableCreation:
     def __repr__(self):
         return f"(V|{self.t_id}, {self.t_value})"
 
-class PythonFunction:
+class FunctionCall:
     def __init__(self, t_identifier, t_args):
         self.t_identifier = t_identifier
         self.t_args = t_args
@@ -54,6 +54,7 @@ class FunctionDeclaration:
 
     def __repr__(self):
         return f"(FDEF|{self.t_identifier}, {self.t_args})"
+
 
 class Parser:
     def __init__(self, filename, tokens, text):
@@ -130,7 +131,7 @@ class Parser:
             if self.current.t_type == "DELIMITER":
                 self.next()
                 data = self.level_3()
-                return PythonFunction(name, data)
+                return FunctionCall(name, data)
 
         # for variable creation
         if self.current.t_type == "IDENTIFIER":
