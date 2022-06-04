@@ -243,10 +243,10 @@ class Parser:
     #     result = self.level_3()
     #     return (result, None) if self.error == None else (None, self.error)
 
-with open("test_parser.py") as data:
+with open("tests/test_parser.py") as data:
     program = data.read()
 
-lexer = lex.Lexer("test_parser.py", program)
+lexer = lex.Lexer("tests/test_parser.py", program)
 tokens = lexer.generate_tokens()
 print(tokens)
 
