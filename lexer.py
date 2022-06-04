@@ -4,7 +4,7 @@ import string
 # clear -> confusion is cleared
 # --- -> do not change, already tested and code is working properly
 # Token Classes
-OP = ['+', '-', '*', '/', '**', '<', '>']
+OP = ['+', '-', '*', '/', '%', '<', '>']
 DEL = ['(', ')', '[', ']', ':', ';']
 RES = ['print', 'for', 'while', 'if', 'else', 'False', 'True', 'not', 'or', 'and'
        'except', 'break', 'def', 'lambda', 'class']
@@ -13,16 +13,11 @@ RES = ['print', 'for', 'while', 'if', 'else', 'False', 'True', 'not', 'or', 'and
 # # ---? still can be improved
 # Error class, has line number, position, type, and message
 class Error:
-<<<<<<< HEAD
-    def __init__(self, e_type, e_message, e_position):
-=======
     def __init__(self, e_line, e_pos, e_type, e_message):
         self.e_line = e_line
         self.e_pos = e_pos
->>>>>>> 056c930fb1a24eb7d1445c80e80ded3c04a80d22
-        self.e_type = e_type 
-        self.e_message = e_message 
-        self.e_position = e_position
+        self.e_type = e_type
+        self.e_message = e_message
 
     def __repr__(self):
         return f"Error({self.e_type, self.e_message}) at line {self.e_line} position {self.e_pos}"
@@ -38,12 +33,13 @@ class Token:
 
     # return type only if there is no value
     def __repr__(self):
-        return f"Token({self.t_type}, {self.t_value})" if {self.t_value} is not None else f"Token({self.t_type})"
+        return f"({self.t_type}, {self.t_value})" if {self.t_value} is not None else f"Token({self.t_type})"
+
 
 class Lexer:
     # ---
     def __init__(self, filename, data:str):
-        self.filename = filename 
+        self.filename = filename
         self.data = data
         self.lineno = 1
         self.pos = -1
@@ -63,6 +59,8 @@ class Lexer:
             self.data[self.pos] if self.pos < len(self.data) else None
         )
 
+    def lookahead(self):
+        return self.data[self.pos+1] if self.pos+1 < len(self.data) else None
     # ---
     # main function to generate the tokens
     def generate_tokens(self):
@@ -72,9 +70,23 @@ class Lexer:
 
         # ---
         while self.current is not None:
+            # check for exponent token
+            # if self.current == "*":
+            #     op = "*"
+            #     self.next()
+            #     if self.current == "*":
+            #         op += "*"
+            #         tokens.append(Token("OPERATOR", self.current, self.pos))
+            #         continue
             # ---
             # check for operator token
             if self.current in OP:
+                if self.current == "*":
+                    if self.lookahead() == "*":
+                        tokens.append(Token("OPERATOR", "**", self.pos))
+                        self.next()
+                        self.next()
+                        continue
                 tokens.append(Token("OPERATOR", self.current, self.pos))
             # ---
             # check for assignment token
@@ -120,10 +132,10 @@ class Lexer:
                     if str(self.current) == ".":
                         # if there is more than one ".", error
                         if decimal_count == 1:
-                            # TODO implement error class later 
+                            # TODO implement error class later
                             return Error(self.lineno, self.pos, "Float error", "invalid float, more than one '.'")
                         decimal_count += 1
-                    num += self.current 
+                    num += self.current
                     self.next()
                 if "." not in num:
                     tokens.append(Token("INT", int(num), self.pos))
@@ -136,7 +148,7 @@ class Lexer:
             elif self.current == "\n":
                 self.lineno += 1
                 self.curr_indent_level = 0
-                tokens.append(Token("NEWLINE", self.current, self.pos))  
+                tokens.append(Token("NEWLINE", self.current, self.pos))
                 self.next()
                 # indentation token
                 # if whitespace found after newline, take it as indentation
@@ -145,7 +157,7 @@ class Lexer:
                     # in this case, no need to check for multiplicities of 4
                     # since we are creating our own compiler
                     while self.current == " ":
-                        self.curr_indent_level += 1 
+                        self.curr_indent_level += 1
                         self.next()
                 # if the current indentation level is more than the last indentation level,
                 # then append the current indent level to the stack and
@@ -169,20 +181,17 @@ class Lexer:
         return tokens
 
 
-<<<<<<< HEAD
-with open("test.py") as data:
-    program = data.read()
-
-lexer = Lexer("test.py", program)
-tokens = lexer.generate_tokens()
-
-print(tokens)
-=======
+# with open("test.py") as data:
+#     program = data.read()
+#
+# lexer = Lexer("test.py", program)
+# tokens = lexer.generate_tokens()
+#
+# print(tokens)
 # with open("test_lexer.py") as data:
 #     program = data.read()
-
+#
 # lexer = Lexer("test_lexer.py", program)
 # tokens = lexer.generate_tokens()
-
+#
 # print(tokens)
->>>>>>> 056c930fb1a24eb7d1445c80e80ded3c04a80d22
