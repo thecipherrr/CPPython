@@ -1,4 +1,5 @@
 import lexer as lex
+import os
 
 # class String:
 #     def __init__(self, token):
@@ -268,10 +269,20 @@ class Parser:
     #     result = self.level_3()
     #     return (result, None) if self.error == None else (None, self.error)
 
-with open("tests/test_parser.py") as data:
-    program = data.read()
+#with open("tests/test_parser.py") as data:
+#    program = data.read()
 
-lexer = lex.Lexer("tests/test_parser.py", program)
+
+cwd = os.path.dirname(__file__)
+parentwd = os.path.split(cwd)[0]
+file_path = os.path.join(parentwd, "tests", "test_parser.py")
+
+
+with open(file_path) as data:
+    program = data.read() 
+
+
+lexer = lex.Lexer("test_parser.py", program)
 tokens = lexer.generate_tokens()
 print(tokens)
 
