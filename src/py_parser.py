@@ -67,7 +67,7 @@ class BTNode:
     def __init__(self, left, root, right):
         self.left = left
         self.root = root
-        self.right = right
+        self.right = righta
 
     # only for testing binary tree printing function
     # def insert_left(self, value):
