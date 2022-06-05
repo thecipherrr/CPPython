@@ -63,7 +63,7 @@ import lexer as lex
 #         return f"(LINE|{self.token})"
 
 
-class BTNode:
+class TreeNode:
     def __init__(self, root, children=None):
         self.root = root
         self.children = ([] if children is None else list(children))
@@ -115,7 +115,7 @@ class BTNode:
         for i in range(total - 1):
             if self.children[i]:
                 res += self.children[i].inorder_prec()
-        res += " " + self.root + " "
+        res += " " + self.root.__repr__() + " "
         if total >= 1:
             res += self.children[total-1].inorder_prec()
         res += ")"
@@ -182,7 +182,7 @@ class Parser:
         left = self.current
         self.next()
         if left.t_type in ["INT", "FLOAT"]:
-            return BTNode(None, left, None)
+            return TreeNode(left)
         return None
 
     # term -> number {'*' | '**' | '/' | '%' | '+' | '-'} term
@@ -194,7 +194,7 @@ class Parser:
             right = self.term()
             if right is None:
                 return None
-            return BTNode(left, op, right)
+            return TreeNode(op, [left, right])
         return left
 
     def parse(self):
@@ -268,14 +268,14 @@ class Parser:
     #     result = self.level_3()
     #     return (result, None) if self.error == None else (None, self.error)
 
-# with open("tests/test_parser.py") as data:
-#     program = data.read()
-#
-# lexer = lex.Lexer("tests/test_parser.py", program)
-# tokens = lexer.generate_tokens()
-# print(tokens)
-#
-# parser = Parser(tokens)
-# ast = parser.parse()
-#
-# print(ast)
+with open("tests/test_parser.py") as data:
+    program = data.read()
+
+lexer = lex.Lexer("tests/test_parser.py", program)
+tokens = lexer.generate_tokens()
+print(tokens)
+
+parser = Parser(tokens)
+ast = parser.parse()
+
+print(ast)
