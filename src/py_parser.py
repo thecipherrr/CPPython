@@ -64,10 +64,10 @@ import lexer as lex
 
 
 class BTNode:
-    def __init__(self, left, root, right):
-        self.left = left
+    def __init__(self, root, children=None):
         self.root = root
-        self.right = righta
+        self.children = ([] if children is None else list(children))
+
 
     # only for testing binary tree printing function
     # def insert_left(self, value):
@@ -78,38 +78,50 @@ class BTNode:
     #     self.right = BTNode(value)
     #     return self.right
 
-    def read_tree(self):
-        res = ""
-        if self.left:
-            res += self.left.read_tree()
-        res += self.root.__repr__()
-        if self.right:
-            res += self.right.read_tree()
-        return res
+    # def read_tree(self):
+    #     res = ""
+    #     if self.left:
+    #         res += self.left.read_tree()
+    #     res += self.root.__repr__()
+    #     if self.right:
+    #         res += self.right.read_tree()
+    #     return res
 
-    def read_tree_precedence(self):
-        res = "("
-        if self.left:
-            res += self.left.read_tree_precedence()
-        res += " " + self.root.__repr__() + " "
-        if self.right:
-            res += self.right.read_tree_precedence()
-        res += ')'
+    # def read_tree_precedence(self):
+    #     res = "("
+    #     if self.left:
+    #         res += self.left.read_tree_precedence()
+    #     res += " " + self.root.__repr__() + " "
+    #     if self.right:
+    #         res += self.right.read_tree_precedence()
+    #     res += ')'
+    #     return res
+
+    def inorder(self):
+        res = ""
+        total = len(self.children)
+        for i in range(total - 1):
+            if self.children[i]:
+                res += self.children[i].inorder()
+        res += self.root
+        if total >= 1:
+            res += self.children[total-1].inorder()
         return res
 
     def __repr__(self):
-        tree_read_prec = f"this is the tree read with precedence: {self.read_tree_precedence()}"
-        tree_read_regular = f"this is the tree read regularly: {self.read_tree()}"
-        return f"{tree_read_prec}\n{tree_read_regular}"
+        return self.inorder()
+        # tree_read_prec = f"this is the tree read with precedence: {self.read_tree_precedence()}"
+        # tree_read_regular = f"this is the tree read regularly: {self.read_tree()}"
+        # return f"{tree_read_prec}\n{tree_read_regular}"
 
 # only for testing binary tree printing function
-# root = BTNode('a
 
-# # root.right = BinaryTree("b")
+
+root = BTNode("a")
+root.children = [BTNode("b"), BTNode("c")]
+root.children[0].children = [BTNode("d"), BTNode("e")]
 # # root.left = BinaryTree("c")
-# root.insert_right("b")
-# root.insert_left("c")
-# print(root
+print(root)
 
 
 class Parser:
@@ -243,14 +255,14 @@ class Parser:
     #     result = self.level_3()
     #     return (result, None) if self.error == None else (None, self.error)
 
-with open("tests/test_parser.py") as data:
-    program = data.read()
-
-lexer = lex.Lexer("tests/test_parser.py", program)
-tokens = lexer.generate_tokens()
-print(tokens)
-
-parser = Parser(tokens)
-ast = parser.parse()
-
-print(ast)
+# with open("tests/test_parser.py") as data:
+#     program = data.read()
+#
+# lexer = lex.Lexer("tests/test_parser.py", program)
+# tokens = lexer.generate_tokens()
+# print(tokens)
+#
+# parser = Parser(tokens)
+# ast = parser.parse()
+#
+# print(ast)
