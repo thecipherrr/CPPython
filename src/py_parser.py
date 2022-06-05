@@ -97,6 +97,7 @@ class BTNode:
     #     res += ')'
     #     return res
 
+
     def inorder(self):
         res = ""
         total = len(self.children)
@@ -108,8 +109,20 @@ class BTNode:
             res += self.children[total-1].inorder()
         return res
 
+    def inorder_prec(self):
+        res = "("
+        total = len(self.children)
+        for i in range(total - 1):
+            if self.children[i]:
+                res += self.children[i].inorder_prec()
+        res += " " + self.root + " "
+        if total >= 1:
+            res += self.children[total-1].inorder_prec()
+        res += ")"
+        return res
+
     def __repr__(self):
-        return self.inorder()
+        return self.inorder_prec()
         # tree_read_prec = f"this is the tree read with precedence: {self.read_tree_precedence()}"
         # tree_read_regular = f"this is the tree read regularly: {self.read_tree()}"
         # return f"{tree_read_prec}\n{tree_read_regular}"
@@ -117,11 +130,11 @@ class BTNode:
 # only for testing binary tree printing function
 
 
-root = BTNode("a")
-root.children = [BTNode("b"), BTNode("c")]
-root.children[0].children = [BTNode("d"), BTNode("e")]
-# # root.left = BinaryTree("c")
-print(root)
+# root = BTNode("a")
+# root.children = [BTNode("b"), BTNode("c")]
+# root.children[0].children = [BTNode("d"), BTNode("e")]
+# # # root.left = BinaryTree("c")
+# print(root)
 
 
 class Parser:
