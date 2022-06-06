@@ -5,7 +5,7 @@ import string
 # --- -> do not change, already tested and code is working properly
 # Token Classes
 OP = ['+', '-', '*', '/', '%', '<', '>']
-DEL = ['(', ')', '[', ']', ':', ';']
+DEL = ['(', ')', '[', ']', ':', ';', ',']
 RES = ['print', 'for', 'while', 'if', 'else', 'False', 'True', 'not', 'or', 'and'
        'except', 'break', 'def', 'lambda', 'class']
 

@@ -15,7 +15,7 @@
 - [x] Implementing regular grammar (still limited cases)
 - [x] Generating basic AST using recursive descent
 - [x] Grammar for numeric expression
-- [ ] Grammar for statements
+- [x] Grammar for statements
 - [ ] Grammar for function
 - [ ] Grammar for string
 
