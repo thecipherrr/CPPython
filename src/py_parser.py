@@ -98,7 +98,6 @@ class TreeNode:
     #     res += ')'
     #     return res
 
-
     def inorder(self):
         res = ""
         total = len(self.children)
@@ -152,6 +151,19 @@ class Parser:
             self.tokens[self.pos] if self.pos < len(self.tokens) else None
         )
 
+    def lookahead(self):
+        return self.tokens[self.pos + 1] if self.pos + 1 < len(self.tokens) else None
+
+    # ---
+    def accept_token(self, t_type, t_value=None):
+        token = self.current
+        if token is not None:
+            if token.t_type in t_type:
+                if t_value is not None and token.t_value in t_value:
+                    self.next()
+                    return True
+        return False
+
     def accept_type(self, t_type):
         if self.current is not None:
             if self.current.t_type == t_type:
@@ -178,28 +190,90 @@ class Parser:
             return True
         raise SyntaxError(f"Unexpected token type, {self.current.t_value}, expected {t_value}")
 
-    # number -> INT | FLOAT
-    def number(self):
+    # TODO fix expressions parsing bug
+    # expressions -> expression NEWLINE expression
+    def expressions(self):
+        left = self.expression()
+        newline = self.current
+        if self.accept_type("NEWLINE"):
+            right = self.expression()
+            if right is None:
+                return None
+            return TreeNode(newline, [left, right])
+        return left
+
+    # TODO clean up expression function
+    # expression -> strings | sum | expression NEWLINE expression
+    def expression(self):
+        left = self.strings()
+        if left:
+            return TreeNode(left)
+        left = self.sum()
+        if left:
+            return TreeNode(left)
+        # left = self.current
+        # if self.strings() or self.sum():
+        #     return TreeNode(left)
+        # return None
+
+    # ---
+    # string -> STRING
+    def string(self):
         left = self.current
-        self.next()
-        if left.t_type in ["INT", "FLOAT"]:
+        if left.t_type == "STRING":
+            self.next()
             return TreeNode(left)
         return None
 
+    # ---
+    # strings -> string "+" strings
+    def strings(self):
+        left = self.string()
+        op = self.current
+        # if self.accept_type("OPERATOR") and self.accept_value("+"):
+        if self.accept_token("OPERATOR", "+"):
+            right = self.strings()
+            if right is None:
+                return None
+            return TreeNode(op, [left, right])
+        return left
+
+    # ---
+    # sum -> term ("+"|"-") sum
+    def sum(self):
+        left = self.term()
+        op = self.current
+        if self.accept_value(["+", "-"]):
+            right = self.sum()
+            if right is None:
+                return None
+            return TreeNode(op, [left, right])
+        return left
+
+    # ---
     # term -> number {'*' | '**' | '/' | '%' | '+' | '-'} term
     #         | number
     def term(self):
         left = self.number()
         op = self.current
-        if self.accept_value(["*", "**", "/", "%", "+", "-"]):
+        if self.accept_value(["*", "**", "/", "%"]):
             right = self.term()
             if right is None:
                 return None
             return TreeNode(op, [left, right])
         return left
 
+    # ---
+    # number -> INT | FLOAT
+    def number(self):
+        left = self.current
+        if left.t_type in ["INT", "FLOAT"]:
+            self.next()
+            return TreeNode(left)
+        return None
+
     def parse(self):
-        self.AST = self.term()
+        self.AST = self.expression()
         if self.AST is not None:
             return self.AST
         else:
