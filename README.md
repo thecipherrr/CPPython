@@ -12,8 +12,12 @@
 
 
 ## 2. Parser:
-- [ ] Implementing regular grammar
-- [ ] Generating basic AST using recursive descent 
+- [x] Implementing regular grammar (still limited cases)
+- [x] Generating basic AST using recursive descent
+- [x] Grammar for numeric expression
+- [ ] Grammar for statements
+- [ ] Grammar for function
+- [ ] Grammar for string
 
 ## 3. Translator (Generate C++ code)
 - [ ] Translating a simple print statement
