@@ -178,6 +178,12 @@ class Parser:
                 return True
         return False
 
+    def expect_token(self, t_type, t_value):
+        if self.accept_token(t_type, t_value):
+            return True
+        raise SyntaxError(f"Unexpected token type and value, {self.current.t_type}, {self.current.t_value},"+
+                          f" expected {t_type}, {t_value}")
+
     # USING ACCEPT_TYPE
     def expect_type(self, t_type):
         if self.accept_type(t_type):
@@ -190,20 +196,57 @@ class Parser:
             return True
         raise SyntaxError(f"Unexpected token type, {self.current.t_value}, expected {t_value}")
 
-    # TODO fix expressions parsing bug
-    # expressions -> expression NEWLINE expression
+    # TODO fix function parsing
+    # function -> keyword + "(" + function expressions + ")"
+    def function(self):
+        left = self.keyword()
+        if self.accept_token("DELIMITER", "("):
+            right = self.f_expressions()
+            if self.expect_token("DELIMITER", ")"):
+                if right is None:
+                    return None
+                return TreeNode(left, [right])
+            # if right
+
+    # ---
+    # keyword -> KEYWORD
+    def keyword(self):
+        left = self.current
+        if left.t_type == "KEYWORD":
+            self.next()
+            return TreeNode(left)
+        return None
+
+    # still not sure whether to do this or not
+    # function expressions -> expression "," function expressions
+    def f_expressions(self):
+        left = self.expression()
+        comma = self.current
+        if self.accept_token("DELIMITER", ","):
+            right = self.f_expressions()
+            if right is None:
+                return None
+            return TreeNode(comma, [left, right])
+        return left
+
+    # expressions -> expression | expression "," expressions | expression NEWLINE expressions
     def expressions(self):
         left = self.expression()
         newline = self.current
         if self.accept_type("NEWLINE"):
-            right = self.expression()
+            right = self.expressions()
             if right is None:
                 return None
             return TreeNode(newline, [left, right])
+        # elif not self.accept_type("NEWLINE"):
+        #     right = self.expressions()
+        #     if right is None:
+        #         return None
+        #     return TreeNode(None, [left, right])
         return left
 
-    # TODO clean up expression function
-    # expression -> strings | sum | expression NEWLINE expression
+    # ---
+    # expression -> strings | sum
     def expression(self):
         left = self.strings()
         if left:
@@ -226,7 +269,7 @@ class Parser:
         return None
 
     # ---
-    # strings -> string "+" strings
+    # strings -> string | string "+" strings
     def strings(self):
         left = self.string()
         op = self.current
@@ -273,7 +316,7 @@ class Parser:
         return None
 
     def parse(self):
-        self.AST = self.expression()
+        self.AST = self.function()
         if self.AST is not None:
             return self.AST
         else:
