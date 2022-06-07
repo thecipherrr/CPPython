@@ -23,8 +23,11 @@ class Translate:
         # for print statements
         out.write("\tcout << " + print_args + " << endl;")
 
-    def define_variable(self, out, var_type, var_name, var_value ): 
-        out.write(var_type + var_name + " = " + var_value)
+    def define_var(self, out, var_type, var_name, var_value ): 
+        out.write(var_type, var_name + " = " + var_value)
+
+    def write_bin_op(self, left, op, right):
+        out.write(left, op, right)
 
     def compile(self): 
         filename = os.path.splitext(self.file_input)[0]
@@ -35,8 +38,6 @@ class Translate:
         root_value = self.ast_input.root.root.t_value
         child_value = self.ast_input.children[0].root.root.t_value
         print(root_type)
-        print('\n')
-        print(child_value)
 
         # writing the start of the program
         self.write_header(out)
@@ -46,6 +47,9 @@ class Translate:
         if root_type == "KEYWORD":
             if root_value == "print":
                 self.write_print(out, child_value)
+        elif root_type == "OPERATOR":
+            if root_value in ["*", "/"]:
+                self.write_bin_op(out, left, op, right)
        
         out.write("\n") 
         out.write("}")
