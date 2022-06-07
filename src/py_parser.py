@@ -196,12 +196,64 @@ class Parser:
             return True
         raise SyntaxError(f"Unexpected token type, {self.current.t_value}, expected {t_value}")
 
-    # TODO fix function parsing
+    # statements -> statement | statement NEWLINE statements
+    def statements(self):
+        left = self.statement()
+        newline = self.current
+        if self.accept_type("NEWLINE"):
+            right = self.statements()
+            if right is None:
+                return None
+            return TreeNode(newline, [left, right])
+        return left
+
+    # ---
+    # statement -> function | variable_assignment
+    def statement(self):
+        left = self.function()
+        if left:
+            return TreeNode(left)
+        left = self.var_assign()
+        if left:
+            return TreeNode(left)
+
+    # ---
+    # variable_assignment -> identifier "=" expression
+    def var_assign(self):
+        left = self.identifier()
+        assign = self.current
+        if self.accept_token("ASSIGN", "="):
+            right = self.expression()
+            if right is None:
+                return None
+            return TreeNode(assign, [left, right])
+        return None
+
+    # identifier -> IDENTIFIER
+    def identifier(self):
+        left = self.current
+        if left.t_type == "IDENTIFIER":
+            self.next()
+            return TreeNode(left)
+        return None
+
+    # functions -> function | expression NEWLINE expressions
+    def functions(self):
+        left = self.function()
+        newline = self.current
+        if self.accept_type("NEWLINE"):
+            right = self.functions()
+            if right is None:
+                return None
+            return TreeNode(newline, [left, right])
+        return left
+
     # function -> keyword + "(" + function expressions + ")"
     def function(self):
         left = self.keyword()
         if self.accept_token("DELIMITER", "("):
             right = self.f_expressions()
+            # right = self.f_expressions()
             if self.expect_token("DELIMITER", ")"):
                 if right is None:
                     return None
@@ -217,19 +269,19 @@ class Parser:
             return TreeNode(left)
         return None
 
-    # still not sure whether to do this or not
+    # "," removed from AST
     # function expressions -> expression "," function expressions
     def f_expressions(self):
         left = self.expression()
-        comma = self.current
-        if self.accept_token("DELIMITER", ","):
-            right = self.f_expressions()
-            if right is None:
-                return None
-            return TreeNode(comma, [left, right])
-        return left
+        f_expressions = []
+        while self.accept_token("DELIMITER", ","):
+            f_expression = self.f_expressions()
+            if f_expression:
+                f_expressions.append(f_expression)
+        return TreeNode(left, f_expressions)
 
-    # expressions -> expression | expression "," expressions | expression NEWLINE expressions
+    # TODO remove if unused (later)
+    # expressions -> expression | expression NEWLINE expressions
     def expressions(self):
         left = self.expression()
         newline = self.current
@@ -316,79 +368,12 @@ class Parser:
         return None
 
     def parse(self):
-        self.AST = self.function()
+        self.AST = self.statements()
         if self.AST is not None:
             return self.AST
         else:
             print("failed to parse")
             return None
-
-
-    # def binary_operation(self, func, op_token):
-    #     left = func()
-    #     while (
-    #         self.current.t_value if self.current != None else None
-    #     ) in op_token:
-    #         current_op_token = self.current
-    #         self.next()
-    #         right = func()
-    #         if right == None:
-    #             # TODO implement error class later here
-    #             return "error"
-    #         left = BinaryOperation(left, current_op_token, right)
-    #     if self.current.t_type == "LPAREN":
-    #         # TODO implement error class later too
-    #         return "error"
-    #     return left
-
-    # def level_1(self):
-    #     temp_token = self.current
-    #     if temp_token.t_type == "INT" or temp_token.t_type == "FLOAT":
-    #         self.next()
-    #         return Number(temp_token)
-    #     elif temp_token.t_type == "OPERATOR" and (temp_token.t_value == "+" or temp_token.t_value == "-"):
-    #         temp_token = self.current
-    #         self.next()
-    #         num = self.level_1()
-    #         return UnaryOperation(temp_token, num)
-    #     elif temp_token.t_type == "STRING":
-    #         return String(self.current)
-
-
-    # def level_2(self):
-    #     return self.binary_operation(self.level_1, ("*", "/"))
-
-    # def level_3(self):
-    #
-    #     # testing for basic functions like print
-    #     if self.current.t_type == "KEYWORD":
-    #         name = self.current
-    #         self.next()
-    #         if self.current.t_type == "DELIMITER":
-    #             self.next()
-    #             data = self.level_3()
-    #             return PythonFunction(name, data)
-
-        # for variable creation
-        # if self.current.t_type == "IDENTIFIER":
-        #     name = self.current
-        #     self.next()
-        #     if self.current.t_type == "ASSIGN":
-        #         self.next()
-        #         data = self.level_3()
-        #         return VariableCreation(name, data)
-        #
-        # # for addition and subtraction
-        # return self.binary_operation(self.level_2, ("+", "-"))
-
-
-    # def parse(self):
-    #     result = self.level_3()
-    #     return (result, None) if self.error == None else (None, self.error)
-
-#with open("tests/test_parser.py") as data:
-#    program = data.read()
-
 
 cwd = os.path.dirname(__file__)
 parentwd = os.path.split(cwd)[0]

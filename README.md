@@ -16,8 +16,10 @@
 - [x] Generating basic AST using recursive descent
 - [x] Grammar for numeric expression
 - [x] Grammar for statements
-- [ ] Grammar for function
-- [ ] Grammar for string
+- [ ] Grammar for function definition
+- [x] Grammar for function call
+- [x] Grammar for string
+- [ ] Grammar for if else
 
 ## 3. Translator (Generate C++ code)
 - [ ] Translating a simple print statement
