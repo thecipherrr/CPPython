@@ -22,8 +22,9 @@ class Translate:
     def write_print(self, out, print_args):
         # for print statements
         out.write("\tcout << " + print_args + " << endl;")
-    
-    
+
+    def define_variable(self, out, var_type, var_name, var_value ): 
+        out.write(var_type + var_name + " = " + var_value)
 
     def compile(self): 
         filename = os.path.splitext(self.file_input)[0]
