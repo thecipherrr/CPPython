@@ -69,35 +69,6 @@ class TreeNode:
         self.root = root
         self.children = ([] if children is None else list(children))
 
-
-    # only for testing binary tree printing function
-    # def insert_left(self, value):
-    #     self.left = BTNode(value)
-    #     return self.left
-
-    # def insert_right(self, value):
-    #     self.right = BTNode(value)
-    #     return self.right
-
-    # def read_tree(self):
-    #     res = ""
-    #     if self.left:
-    #         res += self.left.read_tree()
-    #     res += self.root.__repr__()
-    #     if self.right:
-    #         res += self.right.read_tree()
-    #     return res
-
-    # def read_tree_precedence(self):
-    #     res = "("
-    #     if self.left:
-    #         res += self.left.read_tree_precedence()
-    #     res += " " + self.root.__repr__() + " "
-    #     if self.right:
-    #         res += self.right.read_tree_precedence()
-    #     res += ')'
-    #     return res
-
     def inorder(self):
         res = ""
         total = len(self.children)
@@ -123,18 +94,6 @@ class TreeNode:
 
     def __repr__(self):
         return self.inorder_prec()
-        # tree_read_prec = f"this is the tree read with precedence: {self.read_tree_precedence()}"
-        # tree_read_regular = f"this is the tree read regularly: {self.read_tree()}"
-        # return f"{tree_read_prec}\n{tree_read_regular}"
-
-# only for testing binary tree printing function
-
-
-# root = BTNode("a")
-# root.children = [BTNode("b"), BTNode("c")]
-# root.children[0].children = [BTNode("d"), BTNode("e")]
-# # # root.left = BinaryTree("c")
-# print(root)
 
 
 class Parser:
