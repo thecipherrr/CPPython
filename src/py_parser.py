@@ -401,9 +401,6 @@ with open(file_path) as data:
 
 lexer = lex.Lexer("test_parser.py", program)
 tokens = lexer.generate_tokens()
-print(tokens)
 
 parser = Parser(tokens)
 ast = parser.parse()
-
-print(ast)
