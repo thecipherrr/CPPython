@@ -1,3 +1,5 @@
-a = 7
-print("hello"+"world"+"why")
-b = 9 + 7 * 5 - 10
+def hello(a, b, c):
+    d = 5
+    print(5 + 7 * 5 - 100 ** 2)
+    a = 7
+    b = "hello"
