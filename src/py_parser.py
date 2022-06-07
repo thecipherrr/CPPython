@@ -97,7 +97,6 @@ class TreeNode:
 
 
 class Parser:
-    # TODO create symbol table to enable variable passing and function call
     def __init__(self, tokens):
         self.tokens = tokens
         self.pos = -1
@@ -138,11 +137,10 @@ class Parser:
                 return True
         return False
 
-    # TODO fix expect_token to throw error at lineno and position
     def expect_token(self, t_type, t_value):
         if self.accept_token(t_type, t_value):
             return True
-        raise SyntaxError(f"Unexpected token type and value, {self.current.t_type}, {self.current.t_value} at position {self.current.start},"+
+        raise SyntaxError(f"Unexpected token type and value, {self.current.t_type}, {self.current.t_value},"+
                           f" expected {t_type}, {t_value}")
 
     # USING ACCEPT_TYPE
@@ -168,44 +166,10 @@ class Parser:
             return TreeNode(newline, [left, right])
         return left
 
-    # TODO debug function_declaration
-    # function_definition -> "def" func_name '(' func_params '):' NEWLINE
-    #                           statements
-    def function_declaration(self):
-        if self.accept_token("KEYWORD", "def"):
-            left = self.identifier()
-            if self.expect_token("DELIMITER", "("):
-                right = self.f_params()
-                if (self.expect_token("DELIMITER", ")")
-                    and self.expect_token("DELIMITER", ":")
-                    and self.expect_type("NEWLINE")
-                    and self.expect_type("INDENT")):
-                        statements = self.statements()
-                        return TreeNode(left, [right, statements])
-        return None
-
-    # f_params -> identifier | identifier "," f_params
-    def f_params(self):
-        left = self.identifier()
-        f_params = []
-        while self.accept_token("DELIMITER", ","):
-            f_param = self.identifier()
-            if f_param:
-                f_params.append(f_param)
-        return TreeNode(left, f_params)
-
-    # def -> DEF
-    def define(self):
-        left = self.current
-        if left.t_type == "KEYWORD" and left.t_value == "def":
-            self.next()
-            return TreeNode(left)
-        return None
-
     # ---
-    # statement -> function_call | variable_assignment
+    # statement -> function | variable_assignment
     def statement(self):
-        left = self.function_call()
+        left = self.function()
         if left:
             return TreeNode(left)
         left = self.var_assign()
@@ -234,7 +198,7 @@ class Parser:
 
     # functions -> function | expression NEWLINE expressions
     def functions(self):
-        left = self.function_call()
+        left = self.function()
         newline = self.current
         if self.accept_type("NEWLINE"):
             right = self.functions()
@@ -243,16 +207,17 @@ class Parser:
             return TreeNode(newline, [left, right])
         return left
 
-    # function_call -> keyword + "(" + function expressions + ")"
-    def function_call(self):
+    # function -> keyword + "(" + function expressions + ")"
+    def function(self):
         left = self.keyword()
         if self.accept_token("DELIMITER", "("):
             right = self.f_expressions()
+            # right = self.f_expressions()
             if self.expect_token("DELIMITER", ")"):
                 if right is None:
                     return None
                 return TreeNode(left, [right])
-        return None
+            # if right
 
     # ---
     # keyword -> KEYWORD
@@ -263,7 +228,6 @@ class Parser:
             return TreeNode(left)
         return None
 
-    # TODO fix working to be able to work with variables too
     # "," removed from AST
     # function expressions -> expression "," function expressions
     def f_expressions(self):
@@ -292,7 +256,6 @@ class Parser:
         #     return TreeNode(None, [left, right])
         return left
 
-    # TODO fix to be able to work with variables
     # ---
     # expression -> strings | sum
     def expression(self):
@@ -364,7 +327,7 @@ class Parser:
         return None
 
     def parse(self):
-        self.AST = self.function_declaration()
+        self.AST = self.statements()
         if self.AST is not None:
             return self.AST
         else:
@@ -381,7 +344,6 @@ with open(file_path) as data:
 
 lexer = lex.Lexer("test_parser.py", program)
 tokens = lexer.generate_tokens()
-print(tokens)
 
 parser = Parser(tokens)
 ast = parser.parse()
