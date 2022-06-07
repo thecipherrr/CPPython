@@ -65,8 +65,15 @@ class Translate:
         
         out.close()
 
+
+
 def main():
-    with open("test_translate.py") as data:
+
+    cwd = os.path.dirname(__file__)
+    parentwd = os.path.split(cwd)[0]
+    file_path = os.path.join(parentwd, "tests", "test_translate.py")
+
+    with open(file_path) as data:
         program = data.read()
 
     lexer = lex.Lexer("test_translate.py", program)
