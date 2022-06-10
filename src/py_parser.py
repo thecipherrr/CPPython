@@ -83,7 +83,7 @@ class TreeNode:
     # root, children
     def dfs_prec(self):
         res = "( "
-        res += self.root
+        res += self.root.__repr__()
         total = len(self.children)
         for i in range(total):
             if self.children[i]:
@@ -232,13 +232,15 @@ class Parser:
             left = self.statements()
             if self.expect_token("DEDENT"):
                 if left:
-                    return TreeNode(lex.Token("block", "hello", start), left)
+                    return TreeNode(lex.Token("block", None, start), left)
         return None
 
+    # TODO test function declaration
     # function_definition -> "def" func_name '(' func_params '):' NEWLINE INDENTATION
     #                           statements
     def function_declaration(self):
         if self.accept_token("KEYWORD", "def"):
+            start = self.current.start
             f_name = self.identifier()
             if self.expect_token("DELIMITER", "("):
                 params = self.f_params()
@@ -247,9 +249,10 @@ class Parser:
                     and self.expect_type("NEWLINE")
                     and self.expect_type("INDENT")):
                         statements = self.statements()
-                        return TreeNode(f_name, [params, statements])
+                        return TreeNode(lex.Token("function_declaration", None, start), [f_name, params, statements])
         return None
 
+    # TODO change to do while
     # f_params -> identifier | identifier "," f_params
     def f_params(self):
         left = self.identifier()
@@ -260,6 +263,7 @@ class Parser:
                 f_params.append(f_param)
         return TreeNode(left, f_params)
 
+    # ---
     # def -> DEF
     def define(self):
         left = self.current
@@ -268,28 +272,31 @@ class Parser:
             return TreeNode(left)
         return None
 
-    # ---
+    # TODO test statement
     # statement -> function_call | variable_assignment
     def statement(self):
+        start = self.current.start
         left = self.function_call()
         if left:
             return TreeNode(left)
         left = self.var_assign()
         if left:
-            return TreeNode(left)
+            return TreeNode(lex.Token("statement", None, start), [left])
 
     # ---
     # variable_assignment -> identifier "=" expression
     def var_assign(self):
+        start = self.current.start
         left = self.identifier()
         assign = self.current
         if self.accept_token("ASSIGN", "="):
             right = self.expression()
             if right is None:
                 return None
-            return TreeNode(assign, [left, right])
+            return TreeNode(lex.Token("var_assign", None, start), [TreeNode(assign), left, right])
         return None
 
+    # ---
     # identifier -> IDENTIFIER
     def identifier(self):
         left = self.current
@@ -298,6 +305,7 @@ class Parser:
             return TreeNode(left)
         return None
 
+    # TODO decide whether to keep newline or not
     # functions -> function | function NEWLINE functions
     def functions(self):
         left = self.function_call()
@@ -309,15 +317,17 @@ class Parser:
             return TreeNode(newline, [left, right])
         return left
 
+    # TODO test function_call
     # function_call -> keyword + "(" + function expressions + ")"
     def function_call(self):
+        start = self.current.start
         f_name = self.keyword()
         if self.accept_token("DELIMITER", "("):
             f_expressions = self.f_expressions()
             if self.expect_token("DELIMITER", ")"):
                 if f_expressions is None:
                     return None
-                return TreeNode(f_name, [f_expressions])
+                return TreeNode(lex.Token("function_call", None, start), [TreeNode(f_name), f_expressions])
         return None
 
     # ---
@@ -329,9 +339,12 @@ class Parser:
             return TreeNode(left)
         return None
 
+    # TODO (optional) change to do while
+    # TODO test f_expressions
     # "," removed from AST
     # function expressions -> expression "," function expressions
     def f_expressions(self):
+        start = self.current.start
         left = self.expression()
         f_expressions = []
         while self.accept_token("DELIMITER", ","):
@@ -357,16 +370,17 @@ class Parser:
         #     return TreeNode(None, [left, right])
         return left
 
-    # TODO fix to be able to work with variables
+    # TODO fix to be able to work with variables (optional)
     # ---
     # expression -> strings | sum
     def expression(self):
+        start = self.current.start
         left = self.strings()
         if left:
-            return TreeNode(left)
+            return TreeNode("expression", [left])
         left = self.sum()
         if left:
-            return TreeNode(left)
+            return TreeNode("expression", [left])
         # left = self.current
         # if self.strings() or self.sum():
         #     return TreeNode(left)
@@ -384,39 +398,41 @@ class Parser:
     # ---
     # strings -> string | string "+" strings
     def strings(self):
+        start = self.current.start
         left = self.string()
         op = self.current
-        # if self.accept_type("OPERATOR") and self.accept_value("+"):
         if self.accept_token("OPERATOR", "+"):
             right = self.strings()
             if right is None:
                 return None
-            return TreeNode(op, [left, right])
+            return TreeNode("strings", [TreeNode(op), left, right])
         return left
 
     # ---
     # sum -> term ("+"|"-") sum
     def sum(self):
+        start = self.current.start
         left = self.term()
         op = self.current
         if self.accept_value(["+", "-"]):
             right = self.sum()
             if right is None:
                 return None
-            return TreeNode(op, [left, right])
+            return TreeNode(lex.Token("sum", "", start), [TreeNode(op), left, right])
         return left
 
     # ---
     # term -> number {'*' | '**' | '/' | '%' | '+' | '-'} term
     #         | number
     def term(self):
+        start = self.current.start
         left = self.number()
         op = self.current
         if self.accept_value(["*", "**", "/", "%"]):
             right = self.term()
             if right is None:
                 return None
-            return TreeNode(op, [left, right])
+            return TreeNode(lex.Token("term", "", start), [TreeNode(op), left, right])
         return left
 
     # ---
@@ -429,25 +445,25 @@ class Parser:
         return None
 
     def parse(self):
-        self.AST = self.function_declaration()
+        self.AST = self.function_call()
         if self.AST is not None:
             return self.AST
         else:
             print("failed to parse")
             return None
 
-# cwd = os.path.dirname(__file__)
-# parentwd = os.path.split(cwd)[0]
-# file_path = os.path.join(parentwd, "tests", "test_parser.py")
-#
-#
-# with open(file_path) as data:
-#     program = data.read()
-#
-# lexer = lex.Lexer("test_parser.py", program)
-# tokens = lexer.generate_tokens()
-# print(tokens)
-#
-# parser = Parser(tokens)
-# ast = parser.parse()
-# print(ast)
+cwd = os.path.dirname(__file__)
+parentwd = os.path.split(cwd)[0]
+file_path = os.path.join(parentwd, "tests", "test_parser.py")
+
+
+with open(file_path) as data:
+    program = data.read()
+
+lexer = lex.Lexer("test_parser.py", program)
+tokens = lexer.generate_tokens()
+print(tokens)
+
+parser = Parser(tokens)
+ast = parser.parse()
+print(ast)
