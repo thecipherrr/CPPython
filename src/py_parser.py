@@ -80,24 +80,39 @@ class TreeNode:
             res += self.children[total-1].inorder()
         return res
 
-    def inorder_prec(self):
+    # root, children
+    def dfs_prec(self):
+        res = "( "
+        res += self.root
+        total = len(self.children)
+        for i in range(total):
+            if self.children[i]:
+                res += self.children[i].dfs_prec()
+        res += " )"
+        return res
+
+    def dfs_inorder_prec(self):
         res = "("
         total = len(self.children)
         for i in range(total - 1):
             if self.children[i]:
-                res += self.children[i].inorder_prec()
+                res += self.children[i].dfs_inorder_prec()
         res += " " + self.root.__repr__() + " "
         if total >= 1:
-            res += self.children[total-1].inorder_prec()
+            res += self.children[total-1].dfs_inorder_prec()
         res += ")"
         return res
 
     def __repr__(self):
-        return self.inorder_prec()
+        return self.dfs_prec()
 
+# a = TreeNode("hello")
+# a.children = [TreeNode("there"), TreeNode("hey"), TreeNode("what")]
+# a.children[0].children=[TreeNode("a"), TreeNode("bd"), TreeNode("c")]
+# print(a)
 
+# TODO fix parsing functions so that it follows polish notation rule
 class Parser:
-    # TODO create symbol table to enable variable passing and function call
     def __init__(self, tokens):
         self.tokens = tokens
         self.pos = -1
@@ -139,7 +154,7 @@ class Parser:
         return False
 
     # TODO fix expect_token to throw error at lineno and position
-    def expect_token(self, t_type, t_value):
+    def expect_token(self, t_type, t_value=None):
         if self.accept_token(t_type, t_value):
             return True
         raise SyntaxError(f"Unexpected token type and value, {self.current.t_type}, {self.current.t_value} at position {self.current.start},"+
@@ -168,20 +183,71 @@ class Parser:
             return TreeNode(newline, [left, right])
         return left
 
-    # TODO debug function_declaration
-    # function_definition -> "def" func_name '(' func_params '):' NEWLINE
+    # if_stmt:
+    # | 'if' named_expression ':' block elif_stmt
+    # | 'if' named_expression ':' block[else_block]
+    # TODO debug if_statement
+    # TODO restructure statements to block
+    def if_statement(self):
+        root = self.if_kwd()
+        if self.accept_token("KEYWORD", "if"):
+            left = self.expression()
+            if self.expect_token("DELIMITER", ":") and left:
+                mid = self.block()
+                right = self.elif_statement()
+                # if right is None:
+
+    def if_kwd(self):
+        left = self.current
+        if left.t_type == "KEYWORD" and left.t_value == "if":
+            self.next()
+            return TreeNode(left)
+        return None
+
+    # TODO Debug elif_statement
+    # elif_stmt:
+    # | 'elif' named_expression ':' block elif_stmt
+    # | 'elif' named_expression ':' block[else_block]
+    def elif_statement(self):
+        if self.accept_token("KEYWORD", "if"):
+            left = self.expression()
+            if self.expect_token("DELIMITER", ":"):
+                mid = self.block()
+                right = self.elif_statement()
+                if right is None:
+                    right = self.else_block()
+
+    # else_block:
+    # | 'else' ':' block
+    def else_block(self):
+        if self.accept_token("KEYWORD", "else") and self.expect_token("DELIMITER", ":"):
+            left = self.block()
+            return TreeNode(left)
+
+    # TODO not done yet, test for bugs
+    # block: NEWLINE INDENT statements DEDENT
+    def block(self):
+        if self.accept_token("NEWLINE") and self.expect_token("INDENT"):
+            start = self.current.start
+            left = self.statements()
+            if self.expect_token("DEDENT"):
+                if left:
+                    return TreeNode(lex.Token("block", "hello", start), left)
+        return None
+
+    # function_definition -> "def" func_name '(' func_params '):' NEWLINE INDENTATION
     #                           statements
     def function_declaration(self):
         if self.accept_token("KEYWORD", "def"):
-            left = self.identifier()
+            f_name = self.identifier()
             if self.expect_token("DELIMITER", "("):
-                right = self.f_params()
+                params = self.f_params()
                 if (self.expect_token("DELIMITER", ")")
                     and self.expect_token("DELIMITER", ":")
                     and self.expect_type("NEWLINE")
                     and self.expect_type("INDENT")):
                         statements = self.statements()
-                        return TreeNode(left, [right, statements])
+                        return TreeNode(f_name, [params, statements])
         return None
 
     # f_params -> identifier | identifier "," f_params
@@ -232,7 +298,7 @@ class Parser:
             return TreeNode(left)
         return None
 
-    # functions -> function | expression NEWLINE expressions
+    # functions -> function | function NEWLINE functions
     def functions(self):
         left = self.function_call()
         newline = self.current
@@ -245,13 +311,13 @@ class Parser:
 
     # function_call -> keyword + "(" + function expressions + ")"
     def function_call(self):
-        left = self.keyword()
+        f_name = self.keyword()
         if self.accept_token("DELIMITER", "("):
-            right = self.f_expressions()
+            f_expressions = self.f_expressions()
             if self.expect_token("DELIMITER", ")"):
-                if right is None:
+                if f_expressions is None:
                     return None
-                return TreeNode(left, [right])
+                return TreeNode(f_name, [f_expressions])
         return None
 
     # ---
@@ -263,7 +329,6 @@ class Parser:
             return TreeNode(left)
         return None
 
-    # TODO fix working to be able to work with variables too
     # "," removed from AST
     # function expressions -> expression "," function expressions
     def f_expressions(self):
@@ -371,18 +436,18 @@ class Parser:
             print("failed to parse")
             return None
 
-cwd = os.path.dirname(__file__)
-parentwd = os.path.split(cwd)[0]
-file_path = os.path.join(parentwd, "tests", "test_parser.py")
-
-
-with open(file_path) as data:
-    program = data.read() 
-
-lexer = lex.Lexer("test_parser.py", program)
-tokens = lexer.generate_tokens()
-print(tokens)
-
-parser = Parser(tokens)
-ast = parser.parse()
-print(ast)
+# cwd = os.path.dirname(__file__)
+# parentwd = os.path.split(cwd)[0]
+# file_path = os.path.join(parentwd, "tests", "test_parser.py")
+#
+#
+# with open(file_path) as data:
+#     program = data.read()
+#
+# lexer = lex.Lexer("test_parser.py", program)
+# tokens = lexer.generate_tokens()
+# print(tokens)
+#
+# parser = Parser(tokens)
+# ast = parser.parse()
+# print(ast)
