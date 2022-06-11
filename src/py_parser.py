@@ -83,7 +83,7 @@ class TreeNode:
     # root, children
     def dfs_prec(self):
         res = "( "
-        res += self.root.__repr__()
+        res += (self.root if isinstance(self.root, str) else self.root.__repr__())
         total = len(self.children)
         for i in range(total):
             if self.children[i]:
@@ -111,7 +111,6 @@ class TreeNode:
 # a.children[0].children=[TreeNode("a"), TreeNode("bd"), TreeNode("c")]
 # print(a)
 
-# TODO fix parsing functions so that it follows polish notation rule
 class Parser:
     def __init__(self, tokens):
         self.tokens = tokens
@@ -153,7 +152,7 @@ class Parser:
                 return True
         return False
 
-    # TODO fix expect_token to throw error at lineno and position
+    # TODO fix expect_token to throw error at lineno (optional) and position
     def expect_token(self, t_type, t_value=None):
         if self.accept_token(t_type, t_value):
             return True
@@ -172,16 +171,6 @@ class Parser:
             return True
         raise SyntaxError(f"Unexpected token type, {self.current.t_value}, expected {t_value}")
 
-    # statements -> statement | statement NEWLINE statements
-    def statements(self):
-        left = self.statement()
-        newline = self.current
-        if self.accept_type("NEWLINE"):
-            right = self.statements()
-            if right is None:
-                return None
-            return TreeNode(newline, [left, right])
-        return left
 
     # if_stmt:
     # | 'if' named_expression ':' block elif_stmt
@@ -197,6 +186,8 @@ class Parser:
                 right = self.elif_statement()
                 # if right is None:
 
+    # ---
+    # if -> IF
     def if_kwd(self):
         left = self.current
         if left.t_type == "KEYWORD" and left.t_value == "if":
@@ -209,7 +200,7 @@ class Parser:
     # | 'elif' named_expression ':' block elif_stmt
     # | 'elif' named_expression ':' block[else_block]
     def elif_statement(self):
-        if self.accept_token("KEYWORD", "if"):
+        if self.accept_token("KEYWORD", "elif"):
             left = self.expression()
             if self.expect_token("DELIMITER", ":"):
                 mid = self.block()
@@ -221,46 +212,60 @@ class Parser:
     # | 'else' ':' block
     def else_block(self):
         if self.accept_token("KEYWORD", "else") and self.expect_token("DELIMITER", ":"):
-            left = self.block()
-            return TreeNode("else_block", [left])
+            block = self.block()
+            return TreeNode("else_block", [block])
 
-    # TODO not done yet, test for bugs
+    # ---
+    # statements -> statement | statement NEWLINE statements
+    def statements(self):
+        statements = []
+        statement = self.statement()
+        if statement:
+            statements.append(statement)
+            statements.append(TreeNode("\n"))
+        # newline = self.current
+        while self.accept_type("NEWLINE"):
+            statement = self.statement()
+            if statement:
+                statements.append(statement)
+                statements.append(TreeNode("\n"))
+        return TreeNode("statements", statements)
+
+    # ---
     # block: NEWLINE INDENT statements DEDENT
     def block(self):
-        if self.accept_token("NEWLINE") and self.expect_token("INDENT"):
-            left = self.statements()
-            if self.expect_token("DEDENT"):
-                if left:
-                    return TreeNode("block", [left])
+        if self.accept_token("NEWLINE", "\n") and self.expect_type("INDENT"):
+            statements = self.statements()
+            if self.expect_type("DEDENT") and statements:
+                return TreeNode("block", [statements])
         return None
 
-    # TODO test function declaration
+    # ---
     # function_definition -> "def" func_name '(' func_params '):' NEWLINE INDENTATION
     #                           statements
     def function_declaration(self):
         if self.accept_token("KEYWORD", "def"):
-            start = self.current.start
             f_name = self.identifier()
             if self.expect_token("DELIMITER", "("):
                 params = self.f_params()
                 if (self.expect_token("DELIMITER", ")")
-                    and self.expect_token("DELIMITER", ":")
-                    and self.expect_type("NEWLINE")
-                    and self.expect_type("INDENT")):
-                        statements = self.statements()
-                        return TreeNode("function_declaration", [f_name, params, statements])
+                    and self.expect_token("DELIMITER", ":")):
+                        block = self.block()
+                        return TreeNode("function_declaration", [f_name, params, block])
         return None
 
-    # TODO change to do while
+    # TODO test f_params
     # f_params -> identifier | identifier "," f_params
     def f_params(self):
-        left = self.identifier()
         f_params = []
+        f_param = self.identifier()
+        if f_param:
+            f_params.append(f_param)
         while self.accept_token("DELIMITER", ","):
             f_param = self.identifier()
             if f_param:
                 f_params.append(f_param)
-        return TreeNode(left, f_params)
+        return TreeNode("f_params", f_params)
 
     # ---
     # def -> DEF
@@ -271,7 +276,7 @@ class Parser:
             return TreeNode(left)
         return None
 
-    # TODO test statement
+    # ---
     # statement -> function_call | variable_assignment
     def statement(self):
         left = self.function_call()
@@ -302,6 +307,8 @@ class Parser:
             return TreeNode(left)
         return None
 
+
+    # TODO remove if unused (later)
     # TODO decide whether to keep newline or not
     # functions -> function | function NEWLINE functions
     def function_calls(self):
@@ -314,7 +321,7 @@ class Parser:
             return TreeNode(newline, [left, right])
         return left
 
-    # TODO test function_call
+    # ---
     # function_call -> keyword + "(" + function expressions + ")"
     def function_call(self):
         f_name = self.keyword()
@@ -335,19 +342,18 @@ class Parser:
             return TreeNode(left)
         return None
 
-    # TODO (optional) change to do while
-    # TODO test f_expressions
     # "," removed from AST
     # function expressions -> expression "," function expressions
     def f_expressions(self):
-        start = self.current.start
-        left = self.expression()
         f_expressions = []
+        f_expression = self.expression()
+        if f_expression:
+            f_expressions.append(f_expression)
         while self.accept_token("DELIMITER", ","):
-            f_expression = self.f_expressions()
+            f_expression = self.expression()
             if f_expression:
                 f_expressions.append(f_expression)
-        return TreeNode(left, f_expressions)
+        return TreeNode("f_expressions", f_expressions)
 
     # TODO remove if unused (later)
     # expressions -> expression | expression NEWLINE expressions
@@ -429,7 +435,7 @@ class Parser:
         return None
 
     def parse(self):
-        self.AST = self.function_call()
+        self.AST = self.function_declaration()
         if self.AST is not None:
             return self.AST
         else:
