@@ -171,28 +171,25 @@ class Parser:
             return True
         raise SyntaxError(f"Unexpected token type, {self.current.t_value}, expected {t_value}")
 
-
     # if_stmt:
     # | 'if' named_expression ':' block elif_stmt
-    # | 'if' named_expression ':' block[else_block]
+    # | 'if' named_expression ':' block else_block
+    # | 'if' named_expression ':' block
     # TODO debug if_statement
     # TODO restructure statements to block
     def if_statement(self):
-        root = self.if_kwd()
         if self.accept_token("KEYWORD", "if"):
-            left = self.expression()
-            if self.expect_token("DELIMITER", ":") and left:
-                mid = self.block()
-                right = self.elif_statement()
-                # if right is None:
-
-    # ---
-    # if -> IF
-    def if_kwd(self):
-        left = self.current
-        if left.t_type == "KEYWORD" and left.t_value == "if":
-            self.next()
-            return TreeNode(left)
+            named_expression = self.expression()
+            if self.expect_token("DELIMITER", ":") and named_expression:
+                block = self.block()
+                if block:
+                    else_stmt = self.elif_statement()
+                    if else_stmt:
+                        return TreeNode("if_statement", [named_expression, block, else_stmt])
+                    else_stmt = self.else_block()
+                    if else_stmt:
+                        return TreeNode("if_statement", [named_expression, block, else_stmt])
+                    return TreeNode("if_statement", [named_expression, block])
         return None
 
     # TODO Debug elif_statement
@@ -201,12 +198,18 @@ class Parser:
     # | 'elif' named_expression ':' block[else_block]
     def elif_statement(self):
         if self.accept_token("KEYWORD", "elif"):
-            left = self.expression()
-            if self.expect_token("DELIMITER", ":"):
-                mid = self.block()
-                right = self.elif_statement()
-                if right is None:
-                    right = self.else_block()
+            named_expression = self.expression()
+            if self.expect_token("DELIMITER", ":") and named_expression:
+                block = self.block()
+                if block:
+                    else_stmt = self.elif_statement()
+                    if else_stmt:
+                        return TreeNode("elif_statement", [named_expression, block, else_stmt])
+                    else_stmt = self.else_block()
+                    if else_stmt:
+                        return TreeNode("elif_statement", [named_expression, block, else_stmt])
+                    return TreeNode("elif_statement", [named_expression, block])
+        return None
 
     # else_block:
     # | 'else' ':' block
@@ -219,6 +222,7 @@ class Parser:
     # statements -> statement | statement NEWLINE statements
     def statements(self):
         statements = []
+        statements.append(TreeNode("\n"))
         statement = self.statement()
         if statement:
             statements.append(statement)
@@ -276,15 +280,22 @@ class Parser:
             return TreeNode(left)
         return None
 
-    # ---
-    # statement -> function_call | variable_assignment
+    # TODO debug statement
+    # statement -> function_declaration | if_statement | function_call | variable_assignment
     def statement(self):
+        left = self.function_declaration()
+        if left:
+            return TreeNode("statement", [left])
+        left = self.if_statement()
+        if left:
+            return TreeNode("statement", [left])
         left = self.function_call()
         if left:
-            return TreeNode(left)
+            return TreeNode("statement", [left])
         left = self.var_assign()
         if left:
             return TreeNode("statement", [left])
+        return None
 
     # ---
     # variable_assignment -> identifier "=" expression
@@ -308,18 +319,18 @@ class Parser:
         return None
 
 
-    # TODO remove if unused (later)
-    # TODO decide whether to keep newline or not
-    # functions -> function | function NEWLINE functions
-    def function_calls(self):
-        left = self.function_call()
-        newline = self.current
-        if self.accept_type("NEWLINE"):
-            right = self.function_calls()
-            if right is None:
-                return None
-            return TreeNode(newline, [left, right])
-        return left
+    # # TODO remove if unused (later)
+    # # TODO decide whether to keep newline or not
+    # # functions -> function | function NEWLINE functions
+    # def function_calls(self):
+    #     left = self.function_call()
+    #     newline = self.current
+    #     if self.accept_type("NEWLINE"):
+    #         right = self.function_calls()
+    #         if right is None:
+    #             return None
+    #         return TreeNode(newline, [left, right])
+    #     return left
 
     # ---
     # function_call -> keyword + "(" + function expressions + ")"
@@ -371,7 +382,6 @@ class Parser:
     # ---
     # expression -> strings | sum
     def expression(self):
-        start = self.current.start
         left = self.strings()
         if left:
             return TreeNode("expression", [left])
@@ -435,7 +445,7 @@ class Parser:
         return None
 
     def parse(self):
-        self.AST = self.function_declaration()
+        self.AST = self.statements()
         if self.AST is not None:
             return self.AST
         else:

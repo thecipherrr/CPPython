@@ -6,7 +6,7 @@ import string
 # Token Classes
 OP = ['+', '-', '*', '/', '%', '<', '>']
 DEL = ['(', ')', '[', ']', ':', ';', ',']
-RES = ['print', 'for', 'while', 'if', 'else', 'False', 'True', 'not', 'or', 'and'
+RES = ['print', 'for', 'while', 'if', 'elif', 'else', 'False', 'True', 'not', 'or', 'and'
        'except', 'break', 'def', 'lambda', 'class']
 
 
