@@ -1,3 +1,2 @@
-print("hello world")
-print("hello world")
-a = 9 * 100
+def foo(a):
+    print("hello world")

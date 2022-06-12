@@ -1,1 +1,2 @@
-10 * 5 
+def foo(a):
+    print("hello world")
