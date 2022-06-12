@@ -28,8 +28,37 @@ class Translate:
     def write_assign(self, out, var_type, var_name, var_value): 
         out.write("\t" + var_type + " " + var_name + " = " + var_value + ";")
 
-    def write_bin_op(self, left, op, right):
+    def write_bin_op(self, out, left, op, right):
         out.write(left, op, right)
+
+    def write_function_declaration(self, out, func_name, func_params, func_block_list):
+        out.write("void " + func_name + "(" + "auto " + func_params + ")")
+        out.write("\n")
+        out.write("{")
+        out.write("\n")
+       
+        statements_in_block = []
+        for op in func_block_list:
+            for i in range(len(op.children)):
+                if i % 2 == 0:
+                    statements_in_block.append(op.children[i])
+        
+        for op in statements_in_block:
+            if op.root == "function_call":
+                f_call = op.children[0].root.root.t_value 
+                f_params = op.children[1].children[0].children[0].root.t_value
+                if f_call == "print":
+                    self.write_print(out, f_params)
+                    out.write("\n")
+            elif op.root == "var_assign":
+                identifier = op.children[1].root.t_value
+                var_type = op.children[2].children[0].root.t_type.lower() 
+                var_value = str(op.children[2].children[0].root.t_value)
+                self.write_assign(out, var_type, identifier, var_value) 
+                out.write("\n")
+        
+        out.write("}")
+        out.write("\n")
 
     def compile(self): 
         filename = os.path.splitext(self.file_input)[0]
@@ -54,6 +83,20 @@ class Translate:
 
         # writing the start of the program
         self.write_header(out)
+
+        # for function declaration
+        for op in self.operation_list:
+            if op.root == "function_declaration":
+                func_name = op.children[0].root.t_value
+                func_params = op.children[1].children[0].root.t_value
+                func_block_list = []
+                func_block = op.children[2].children[0].children
+                for i in range(len(func_block)):
+                    func_block_list.append(func_block[i])
+            
+                # writing the function
+                self.write_function_declaration(out, func_name, func_params, func_block_list)
+
         # writing out int main(void)
         self.write_main(out)
  
@@ -78,13 +121,11 @@ class Translate:
                 self.write_assign(out, var_type, identifier, var_value) 
                 out.write("\n") 
 
-            elif op.root == "function_declaration": 
-                func_identifier = op.children[0].root.t_value
-                print(func_identifier)
 
         out.write("\treturn 0;")
         out.write("\n") 
         out.write("}")
+        out.write("\n")
         out.close()
 
 def main():
