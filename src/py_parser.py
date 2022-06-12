@@ -313,7 +313,7 @@ class Parser:
     # identifier -> IDENTIFIER
     def identifier(self):
         left = self.current
-        if left.t_type == "IDENTIFIER":
+        if left and left.t_type == "IDENTIFIER":
             self.next()
             return TreeNode(left)
         return None
@@ -348,7 +348,7 @@ class Parser:
     # keyword -> KEYWORD
     def keyword(self):
         left = self.current
-        if left.t_type == "KEYWORD":
+        if left and left.t_type == "KEYWORD":
             self.next()
             return TreeNode(left)
         return None
