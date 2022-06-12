@@ -6,6 +6,8 @@ class Translate:
     def __init__(self, ast_input, file_input):  
         self.ast_input = ast_input 
         self.file_input = file_input
+        self.statement_list = []
+        self.operation_list = []
 
     def write_header(self, out):
         out.write("#include<iostream>")
@@ -23,8 +25,8 @@ class Translate:
         # for print statements
         out.write("\tcout << " + print_args + " << endl;")
 
-    def define_var(self, out, var_type, var_name, var_value ): 
-        out.write(var_type, var_name + " = " + var_value)
+    def write_assign(self, out, var_type, var_name, var_value): 
+        out.write("\t" + var_type + " " + var_name + " = " + var_value + ";")
 
     def write_bin_op(self, left, op, right):
         out.write(left, op, right)
@@ -34,23 +36,53 @@ class Translate:
         filename_out = filename + ".cpp"
         out = open(filename_out, "w+")
 
-        root_type = self.ast_input.root.root.t_type
-        root_value = self.ast_input.root.root.t_value
-        child_value = self.ast_input.children[0].root.root.t_value
-        print(root_type)
+        check_statements = self.ast_input.root
+        statement = self.ast_input.children
+
+        # populate list with children
+        for i in range(len(statement)):
+            if i % 2 != 0:
+                self.statement_list.append(statement[i]) 
+                
+       
+        # check for children root types
+        for statement in self.statement_list:
+            for i in range(len(statement.children)):
+                if i % 2 == 0:
+                   self.operation_list.append(statement.children[i]) 
+      
 
         # writing the start of the program
         self.write_header(out)
         # writing out int main(void)
         self.write_main(out)
  
-        if root_type == "KEYWORD":
-            if root_value == "print":
-                self.write_print(out, child_value)
-        elif root_type == "OPERATOR":
-            if root_value in ["*", "/"]:
-                self.write_bin_op(out, left, op, right)
-       
+        if check_statements != "statements":
+            raise SyntaxError("invalid parse")
+
+        # main logic of program
+        for op in self.operation_list:
+            # checks for function call
+            if op.root == "function_call":
+                f_call = op.children[0].root.root.t_value
+                f_params = op.children[1].children[0].children[0].root.t_value
+                if f_call == "print":
+                    self.write_print(out, f_params)
+                    out.write("\n")
+            
+            # translates variable definition
+            elif op.root == "var_assign":
+                identifier = op.children[1].root.t_value
+                var_type = op.children[2].children[0].root.t_type.lower() 
+                var_value = str(op.children[2].children[0].root.t_value)
+                self.write_assign(out, var_type, identifier, var_value) 
+                out.write("\n") 
+
+            elif op.root == "function_declaration": 
+                func_identifier = op.children[0].root.t_value
+                print(func_identifier)
+
+        out.write("\treturn 0;")
         out.write("\n") 
         out.write("}")
         out.close()
@@ -69,8 +101,8 @@ def main():
     
     parser = yacc.Parser(tokens)
     ast = parser.parse()
-
+    
     trans = Translate(ast, "test_translate.py")
     out = trans.compile()
-
+    
 main()
