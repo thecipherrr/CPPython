@@ -119,6 +119,9 @@ class Translate:
                 self.write_assign(out, var_type, identifier, var_value) 
                 out.write("\n") 
 
+            elif op.root == "if_statement":
+                assert False, "not implemented yet"
+
 
         out.write("\treturn 0;")
         out.write("\n") 
