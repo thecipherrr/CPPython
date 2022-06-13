@@ -1,6 +1,6 @@
 #!/bin/sh
 
-FILE_IN="test.cpp"
-FILE_OUT="test"
+FILE_IN=$2
+FILE_OUT=$1
 
 g++ -o $FILE_OUT $FILE_IN
