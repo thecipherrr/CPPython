@@ -27,11 +27,12 @@ def compile_program(filename, data):
     translator = trans.Translate(ast, filename)
 
     # if cpp file does not exist, make one using the translate function
-    file_cpp = os.path.splitext(filename)[0]
-    if not os.path.isfile(file_cpp):
+    file_basename = os.path.splitext(filename)[0]
+    file_cpp = file_basename + ".cpp"
+    if not os.path.exists(file_cpp):
+        print("C++ source code doesn't exist. Translating from provided Python file")
         translate(filename, data)
-
-    subprocess.run("build.sh", shell=True, check=True)
+    subprocess.run(["build.sh", file_basename, file_cpp], shell=True, check=True)
 
 def usage():
     print("Usage: python main.py <SUBCOMMAND> <FILENAME>")
