@@ -1,11 +1,10 @@
 import src.lexer as lex
 import src.py_parser as yacc
-import src.translate_new as trans
+import src.translate as trans
 import os
 import sys
 import string
 import subprocess
-
 
 def translate(filename, data):
     lexer = lex.Lexer(filename, data)
@@ -13,11 +12,7 @@ def translate(filename, data):
     parser = yacc.Parser(tokens)
     ast = parser.parse()
     translator = trans.Translate(ast, filename)
-
-    try:
-        translator.translate()
-    except Exception as e:
-        print(e)
+    translator.translate_program()
     
 def compile_program(filename, data):
     lexer = lex.Lexer(filename, data)
@@ -32,7 +27,7 @@ def compile_program(filename, data):
     if not os.path.exists(file_cpp):
         print("C++ source code doesn't exist. Translating from provided Python file")
         translate(filename, data)
-    subprocess.run(["build.sh", file_basename, file_cpp], shell=True, check=True)
+    subprocess.run(["build.sh", file_basename, file_cpp], shell=True)
 
 def usage():
     print("Usage: python main.py <SUBCOMMAND> <FILENAME>")

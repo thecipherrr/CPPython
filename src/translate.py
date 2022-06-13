@@ -58,7 +58,7 @@ class Translate:
         out.write("}")
         out.write("\n")
 
-    def translate(self): 
+    def translate_program(self): 
         filename = os.path.splitext(self.file_input)[0]
         filename_out = filename + ".cpp"
         out = open(filename_out, "w+")
