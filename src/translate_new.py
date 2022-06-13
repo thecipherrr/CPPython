@@ -1,3 +1,5 @@
+import os
+
 class Translate:
     def __init__(self, ast_input, file_input):  
         self.ast_input = ast_input 
