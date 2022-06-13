@@ -1,7 +1,3 @@
-import lexer as lex
-import py_parser as yacc
-import os
-
 class Translate:
     def __init__(self, ast_input, file_input):  
         self.ast_input = ast_input 
@@ -60,7 +56,7 @@ class Translate:
         out.write("}")
         out.write("\n")
 
-    def compile(self): 
+    def translate(self): 
         filename = os.path.splitext(self.file_input)[0]
         filename_out = filename + ".cpp"
         out = open(filename_out, "w+")
@@ -127,23 +123,3 @@ class Translate:
         out.write("}")
         out.write("\n")
         out.close()
-
-def main():
-
-    cwd = os.path.dirname(__file__)
-    parentwd = os.path.split(cwd)[0]
-    file_path = os.path.join(parentwd, "tests", "test_translate.py")
-
-    with open(file_path) as data:
-        program = data.read()
-
-    lexer = lex.Lexer("test_translate.py", program)
-    tokens = lexer.generate_tokens()
-    
-    parser = yacc.Parser(tokens)
-    ast = parser.parse()
-    
-    trans = Translate(ast, "test_translate.py")
-    out = trans.compile()
-    
-main()
