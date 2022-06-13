@@ -26,14 +26,15 @@ class Error:
 # ---
 # Token class, has type, value, and starting position
 class Token:
-    def __init__(self, t_type, t_value, start):
+    def __init__(self, t_type, t_value, start, lineno):
         self.t_type = t_type
         self.t_value = t_value
         self.start = start
+        self.lineno = lineno
 
     # return type only if there is no value
     def __repr__(self):
-        return f"({self.t_type}, {self.t_value})" if {self.t_value} is not None else f"Token({self.t_type})"
+        return f"({self.t_type}, {self.t_value}, {self.lineno})" if {self.t_value} is not None else f"Token({self.t_type}, {self.lineno})"
 
 
 class Lexer:
@@ -83,19 +84,19 @@ class Lexer:
             if self.current in OP:
                 if self.current == "*":
                     if self.lookahead() == "*":
-                        tokens.append(Token("OPERATOR", "**", self.pos))
+                        tokens.append(Token("OPERATOR", "**", self.pos, self.lineno))
                         self.next()
                         self.next()
                         continue
-                tokens.append(Token("OPERATOR", self.current, self.pos))
+                tokens.append(Token("OPERATOR", self.current, self.pos, self.lineno))
             # ---
             # check for assignment token
             elif self.current == "=":
-                tokens.append(Token("ASSIGN", self.current, self.pos))
+                tokens.append(Token("ASSIGN", self.current, self.pos, self.lineno))
             # ---
             # check for delimiter token
             elif self.current in DEL:
-               tokens.append(Token("DELIMITER", self.current, self.pos))
+               tokens.append(Token("DELIMITER", self.current, self.pos, self.lineno))
             # ---
             # check for either identifier or reserved keyword
             elif self.current in string.ascii_letters:
@@ -105,9 +106,9 @@ class Lexer:
                    identifier += self.current
                    self.next()
                 if identifier in RES:
-                    tokens.append(Token("KEYWORD", identifier, self.pos)) # keyword token
+                    tokens.append(Token("KEYWORD", identifier, self.pos, self.lineno)) # keyword token
                 else:
-                    tokens.append(Token("IDENTIFIER", identifier, self.pos)) # identifier token
+                    tokens.append(Token("IDENTIFIER", identifier, self.pos, self.lineno)) # identifier token
                 # continue is necessary here to avoid double next, so it does not skip the next possible token
                 continue
             # ---
@@ -120,7 +121,7 @@ class Lexer:
                     identifier += self.current
                     self.next()
                 identifier += '"'
-                tokens.append(Token("STRING", identifier, self.pos)) # string literal token
+                tokens.append(Token("STRING", identifier, self.pos, self.lineno)) # string literal token
                 # continue is not necessary here because we actually want the double next to skip the last "
             # ---
             # check for either integer or float
@@ -138,9 +139,9 @@ class Lexer:
                     num += self.current
                     self.next()
                 if "." not in num:
-                    tokens.append(Token("INT", int(num), self.pos))
+                    tokens.append(Token("INT", int(num), self.pos, self.lineno))
                 else:
-                    tokens.append(Token("FLOAT", float(num), self.pos))
+                    tokens.append(Token("FLOAT", float(num), self.pos, self.lineno))
                 # continue is necessary here to avoid double next, so it does not skip the next possible token
                 continue
             # ---
@@ -148,7 +149,7 @@ class Lexer:
             elif self.current == "\n":
                 self.lineno += 1
                 self.curr_indent_level = 0
-                tokens.append(Token("NEWLINE", self.current, self.pos))
+                tokens.append(Token("NEWLINE", self.current, self.pos, self.lineno))
                 self.next()
                 # indentation token
                 # if whitespace found after newline, take it as indentation
@@ -164,7 +165,7 @@ class Lexer:
                 # append token of type indent
                 if self.curr_indent_level > self.indent_stack[-1]:
                     self.indent_stack.append(self.curr_indent_level)
-                    tokens.append(Token("INDENT", None, self.pos))
+                    tokens.append(Token("INDENT", None, self.pos, self.lineno))
                 # if the current indentation level is less than the last indentation level
                 # pop last indent and append current indent
                 elif self.curr_indent_level < self.indent_stack[-1]:
@@ -174,7 +175,7 @@ class Lexer:
                     # for i in range(0, len(self.indent_stack)):
                     #     if self.curr_indent_level < self.indent_stack[-i]:
                     #         self.indent_stack.pop(i)
-                    tokens.append(Token("DEDENT", None, self.pos))
+                    tokens.append(Token("DEDENT", None, self.pos, self.lineno))
                 continue
             # ---
             self.next()
