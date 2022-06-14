@@ -8,8 +8,7 @@
 - [x] Reserved keywords and identifiers
 - [x] Error class
 - [x] Implement indentation token lexing
-- [ ] Implemented more reserved keywords 
-
+- [ ] Implemented more reserved keywords (needed more keywords in the future)
 
 ## 2. Parser:
 - [x] Implementing regular grammar (still limited cases)
@@ -19,16 +18,16 @@
 - [x] Grammar for function definition
 - [x] Grammar for function call
 - [x] Grammar for string
-- [ ] Grammar for if else
+- [x] Grammar for if else
 
 ## 3. Translator (Generate C++ code)
-- [ ] Translating a simple print statement
+- [x] Translating a simple print statement
 - [ ] Translating simple arithmetic operations
 - [ ] Translating conditionals, for loops, and while loops
-- [ ] Translating a simple Python function
+- [x] Translating a simple Python function
 
 ## THINGS TO FIX
-- [ ] Python function AST generation
+- [x] Python function AST generation
 
 ## Source:
 ### 1. How a Programming Language Works:
@@ -38,4 +37,4 @@ https://www.baeldung.com/cs/how-compilers-work1
 ### 3. How Transcompiler Works:
 TBD
 
-## WORK IN PROGRESS, NOT FINISHED YET!!
+## WORK IN PROGRESS, PARTIALLY FINISHED!!

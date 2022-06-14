@@ -74,7 +74,6 @@ class Translate:
             if i % 2 != 0:
                 self.statement_list.append(statement[i]) 
                 
-       
         # check for children root types
         for statement in self.statement_list:
             for i in range(len(statement.children)):

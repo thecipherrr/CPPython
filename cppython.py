@@ -3,7 +3,6 @@ import src.py_parser as yacc
 import src.translate as trans
 import os
 import sys
-import string
 import subprocess
 
 def translate(filename, data):
@@ -11,7 +10,6 @@ def translate(filename, data):
     tokens = lexer.generate_tokens()
     parser = yacc.Parser(tokens)
     ast = parser.parse()
-    translator = trans.Translate(ast, filename)
     translator.translate_program()
     
 def compile_program(filename, data):
