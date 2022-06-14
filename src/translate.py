@@ -30,7 +30,10 @@ class Translate:
         out.write(left, op, right)
 
     def write_function_declaration(self, out, func_name, func_params, func_block_list):
-        out.write("void " + func_name + "(" + "auto " + func_params + ")")
+        if func_params != "":
+            out.write("void " + func_name + "(" + "auto " + func_params + ")")
+        else:
+            out.write("void " + func_name + "(" + func_params + ")")
         out.write("\n")
         out.write("{")
         out.write("\n")
@@ -43,7 +46,7 @@ class Translate:
         
         for op in statements_in_block:
             if op.root == "function_call":
-                f_call = op.children[0].root.root.t_value 
+                f_call = op.children[0].root.root.t_value
                 f_params = op.children[1].children[0].children[0].root.t_value
                 if f_call == "print":
                     self.write_print(out, f_params)
@@ -56,7 +59,7 @@ class Translate:
                 out.write("\n")
         
         out.write("}")
-        out.write("\n")
+        out.write("\n\n")
 
     def translate_program(self): 
         filename = os.path.splitext(self.file_input)[0]
@@ -86,7 +89,10 @@ class Translate:
         for op in self.operation_list:
             if op.root == "function_declaration":
                 func_name = op.children[0].root.t_value
-                func_params = op.children[1].children[0].root.t_value
+                if len(op.children[1].children) == 0:
+                    func_params = ""
+                else:
+                    func_params = op.children[1].children[0].root.t_value
                 func_block_list = []
                 func_block = op.children[2].children[0].children
                 for i in range(len(func_block)):
@@ -121,7 +127,6 @@ class Translate:
 
             elif op.root == "if_statement":
                 assert False, "not implemented yet"
-
 
         out.write("\treturn 0;")
         out.write("\n") 
