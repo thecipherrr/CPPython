@@ -10,7 +10,13 @@ def translate(filename, data):
     tokens = lexer.generate_tokens()
     parser = yacc.Parser(tokens)
     ast = parser.parse()
+    translator = trans.Translate(ast, filename)
     translator.translate_program()
+    print("TOKENS: ")
+    print(tokens)
+    print("\n")
+    print("AST: ")
+    print(ast)
     
 def compile_program(filename, data):
     lexer = lex.Lexer(filename, data)
@@ -18,6 +24,11 @@ def compile_program(filename, data):
     parser = yacc.Parser(tokens)
     ast = parser.parse()
     translator = trans.Translate(ast, filename)
+    print("TOKENS: ")
+    print(tokens)
+    print("\n")
+    print("AST: ")
+    print(ast)
 
     # if cpp file does not exist, make one using the translate function
     file_basename = os.path.splitext(filename)[0]
