@@ -12,6 +12,7 @@ def translate(filename, data):
     parser = yacc.Parser(tokens)
     ast = parser.parse()
     translator = trans.Translate(ast, filename)
+    print(ast)
     translator.translate_program()
     
 def compile_program(filename, data):
