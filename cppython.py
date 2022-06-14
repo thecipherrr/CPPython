@@ -12,7 +12,6 @@ def translate(filename, data):
     parser = yacc.Parser(tokens)
     ast = parser.parse()
     translator = trans.Translate(ast, filename)
-    print(ast)
     translator.translate_program()
     
 def compile_program(filename, data):
@@ -31,10 +30,10 @@ def compile_program(filename, data):
     subprocess.run(["build.sh", file_basename, file_cpp], shell=True)
 
 def usage():
-    print("Usage: python main.py <SUBCOMMAND> <FILENAME>")
+    print("Usage: python cppython.py <SUBCOMMAND> <FILENAME>")
     print("SUBCOMMANDS:")
-    print(" translate       Translate the program")
-    print(" compile         Compile the program (Not implemented yet)")
+    print("     translate       Translate the program")
+    print("     compile         Compile the program (Translates from .py file if .cpp not present)")
 
 if __name__ == "__main__":
     if (len(sys.argv) < 3):
