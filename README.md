@@ -1,7 +1,7 @@
 # Cppython
 **PROJECT IS PARTIALLY FINISHED BUT UPDATES MAY STILL COME, USE AT YOUR OWN RISK!!!**
 
-Cppython is a Python to C++ [Transcompiler](https://en.wikipedia.org/wiki/Source-to-source_compiler) that can translate and compile source codes from [Python](https://en.wikipedia.org/wiki/Python_(programming_language) to [C++](https://en.wikipedia.org/wiki/C%2B%2B)
+Cppython is a Python to C++ [Transcompiler](https://en.wikipedia.org/wiki/Source-to-source_compiler) that can translate and compile source codes from [Python](https://en.wikipedia.org/wiki/Python_(programming_language)) to [C++](https://en.wikipedia.org/wiki/C%2B%2B)
 *(This project requires gcc to compile the translated C++ code in to an executable)*
 
 ## Quick Start
