@@ -32,7 +32,17 @@ $ python cppython translate hello.py
 $ python cppython compile hello.py
 ```
 4. Screenshots:
+
+Hello, World in Python
+
 ![alt text](https://github.com/EdwardMatthew/CPPython/blob/main/images/HelloWorld.jpg)
+
+Translating the program
+![alt text](https://github.com/EdwardMatthew/CPPython/blob/main/images/translate.jpg)
+
+Compiling the program
+![alt text](https://github.com/EdwardMatthew/CPPython/blob/main/images/compile.jpg)
+
 
 ## FEATURES SO FAR
 ## 1. Lexer:
