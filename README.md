@@ -32,7 +32,7 @@ $ python cppython translate hello.py
 $ python cppython compile hello.py
 ```
 4. Screenshots:
-![alt text](https://github.com/EdwardMatthew/CPPython/images/HelloWorld.png)
+![alt text](https://github.com/EdwardMatthew/CPPython/tree/main/images)
 
 
 ## FEATURES SO FAR
