@@ -11,7 +11,13 @@ def translate(filename, data):
     parser = yacc.Parser(tokens)
     ast = parser.parse()
     translator = trans.Translate(ast, filename)
-    translator.translate_program()
+    try:
+        translator.translate_program()
+        print("Program translated succesfully!")
+    except Exception as e:
+        print(e) 
+        print("Translation failed. Unexpected error")
+
     print("TOKENS: ")
     print(tokens)
     print("\n")
@@ -36,7 +42,12 @@ def compile_program(filename, data):
     if not os.path.exists(file_cpp):
         print("C++ source code doesn't exist. Translating from provided Python file")
         translate(filename, data)
-    subprocess.run(["build.sh", file_basename, file_cpp], shell=True)
+    try:
+        subprocess.run(["build.sh", file_basename, file_cpp], shell=True)
+        print("Compilation Successful!")
+    except Exception as e:
+        print(e)
+        print("Compilation Error")
 
 def usage():
     print("Usage: python cppython.py <SUBCOMMAND> <FILENAME>")
