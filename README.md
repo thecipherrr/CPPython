@@ -6,7 +6,7 @@ Cppython is a Python to C++ [Transcompiler](https://en.wikipedia.org/wiki/Source
 
 ## Quick Start
 ```console
-$ git clone https://github.com/EdwardMatthew/CPPython.git
+$ git clone https://github.com/thecipherrr/CPPython.git
 ```
 
 ## How to Use the Program
